@@ -176,7 +176,7 @@ module.exports = function (ctx) {
 
                 appId: "com.equilibria.wallet",
                 productName: "Equilibria Wallet",
-                copyright: "Copyright © 2018-2019 Equilibria Project, 2018 Ryo Currency Project, 2018 Loki Network",
+                copyright: "Copyright © 2018-2020 Equilibria Project, 2020 Ryo Currency Project, 2020 Loki Network",
 
                 // directories: {
                 //     buildResources: "src-electron/build"
