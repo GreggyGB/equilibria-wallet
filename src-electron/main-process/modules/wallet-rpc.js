@@ -859,11 +859,11 @@ export class WalletRPC {
                 "address": address,
                 "account_index": 0,
                 "priority": priority,
-                "mixin": 4 // Always force a ring size of 10 (ringsize = mixin + 1)
+                "mixin": 15 // Always force a ring size of 10 (ringsize = mixin + 1)
             } : {
                 "destinations": [{ "amount": amount, "address": address }],
                 "priority": priority,
-                "mixin": 4
+                "mixin": 15
             }
 
             if (payment_id) {
