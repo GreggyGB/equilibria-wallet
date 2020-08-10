@@ -60,7 +60,7 @@ export class Backend {
         const daemons = {
             mainnet: {
                 ...daemon,
-                remote_host: "51.158.65.16",
+                remote_host: "sanfran.equilibria.network",
                 remote_port: 9231
             },
             stagenet: {
@@ -220,7 +220,7 @@ export class Backend {
 
         case "open_explorer":
             if (params.type == "tx") {
-                require("electron").shell.openExternal("https://xeq.supportcryptonight.com/tx/" + params.id)
+                require("electron").shell.openExternal("https://explorer.equilibria.network/tx/" + params.id)
             }
             break
 
