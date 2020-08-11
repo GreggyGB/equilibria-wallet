@@ -103,8 +103,14 @@ export class Backend {
         }
 
         this.remotes = [
-          {host: "51.158.65.16",
+          {host: "sanfran.equilibria.network",
           port:9231},
+          {host: "newyork.equilibria.network",
+          port:9231},
+          {host: "singapore.equilibria.network",
+          port:9231},
+          {host: "frankfurt.equilibria.network",
+          port:9231}
         ]
 
         this.token = config.token
