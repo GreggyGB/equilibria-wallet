@@ -34,7 +34,7 @@
             <img class="q-mb-md" src="equilibria.svg" />
 
             <p class="q-my-sm">Version: ATOM v{{version}}-v{{daemonVersion}}</p>
-            <p class="q-my-sm">Copyright (c) 2018-2019, Equilibria Project</p>
+            <p class="q-my-sm">Copyright (c) 2018-2020, Equilibria Project</p>
             <p class="q-my-sm">Copyright (c) 2018-2019, Loki Project</p>
             <p class="q-my-sm">Copyright (c) 2018, Ryo Currency Project</p>
             <p class="q-my-sm">All rights reserved.</p>
@@ -44,9 +44,9 @@
                     <a @click="openExternal('https://equilibria.network/')" href="#">https://equilibria.network/</a>
                 </p>
                 <p>
-                    <a @click="openExternal('https://discordapp.com/invite/67GXfD6')" href="#">Discord</a> -
+                    <a @click="openExternal('https://discord.gg/76E3vfE')" href="#">Discord</a> -
                     <a @click="openExternal('https://www.reddit.com/r/equilibrianetwork/')" href="#">Reddit</a> -
-                    <a @click="openExternal('https://github.com/triton-project/triton-electron-wallet')" href="#">Github</a>
+                    <a @click="openExternal('https://github.com/EquilibriaCC/Equilibria')" href="#">Github</a>
                 </p>
             </div>
 
