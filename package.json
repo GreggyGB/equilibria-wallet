@@ -1,7 +1,7 @@
 {
   "name": "equilibria-wallet-atom",
-  "version": "2.0.2",
-  "daemonVersion": "6.0.0",
+  "version": "2.0.3",
+  "daemonVersion": "6.0.3",
   "description": "Modern GUI interface for Equilibria Currency",
   "productName": "equilibria Wallet",
   "cordovaId": "com.equilibria.wallet",
