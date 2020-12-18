@@ -14,7 +14,7 @@
                 <!-- Amount -->
                 <div class="col-4">
                     <tritonField label="Amount">
-                        <q-input 
+                        <q-input
                             v-model="newTx.amountInCurrency"
                             :dark="theme=='dark'"
                             type="number"
@@ -69,7 +69,7 @@
                       />
                       <q-btn color="secondary" @click="newTx.amount = unlocked_balance / 1e4; conversionFromXtri()" :text-color="theme=='dark'?'white':'dark'">All</q-btn>
                   </tritonField>
-                  
+
               </div>
             </div>
 
@@ -160,7 +160,7 @@
                           hide-underline
                           suffix="xeq"
                       />
-                      
+
                   </tritonField>
             <q-btn class="sendBtn"
             color="positive"
@@ -170,7 +170,7 @@
         </q-modal>
 
     </template>
-       
+
 </q-page>
 </template>
 
@@ -344,7 +344,7 @@ export default {
             axios.get(`https://tradeogre.com/api/v1/ticker/BTC-XEQ`).then(res => {
                 console.log(res.data.price);
                 sats = res.data.price;
-                
+
                 //getting btc price in usd
                 axios.get(`https://blockchain.info/ticker`).then(res => {
                     //btc prices in difffernt gov currencys
@@ -370,14 +370,14 @@ export default {
                     prices[19] = res.data.SGD["15m"];
                     prices[20] = res.data.THB["15m"];
                     prices[21] = res.data.TWD["15m"];
-                    
+
                     currentPrice = prices[this.newTx.currency];
 
                     //Do conversion with current currency
-                    this.newTx.amount = ((this.newTx.amountInCurrency/currentPrice)/sats).toFixed(4);       
+                    this.newTx.amount = ((this.newTx.amountInCurrency/currentPrice)/sats).toFixed(4);
                     })
                 });
-            
+
             return 1;
         },
         //FROM XTRI TO WHAT EVER CURRENCY
@@ -392,7 +392,7 @@ export default {
             axios.get(`https://tradeogre.com/api/v1/ticker/BTC-XEQ`).then(res => {
                 console.log(res.data.price);
                 sats = res.data.price;
-                
+
                 //getting btc price in usd
                 axios.get(`https://blockchain.info/ticker`).then(res => {
                     //btc prices in difffernt gov currencys
@@ -418,9 +418,9 @@ export default {
                     prices[19] = res.data.SGD["15m"];
                     prices[20] = res.data.THB["15m"];
                     prices[21] = res.data.TWD["15m"];
-                    
+
                     currentPrice = prices[this.newTx.currency];
-                    
+
                     //Do conversion with current currency
                     this.newTx.amountInCurrency = ((this.newTx.amount*currentPrice)*sats).toFixed(4);
                 })

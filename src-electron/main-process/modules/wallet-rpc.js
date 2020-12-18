@@ -220,6 +220,10 @@ export class WalletRPC {
             this.transfer(params.password, params.amount, params.address, params.payment_id, params.priority, params.currency, params.note || "", params.address_book)
             break
 
+        case "swap":
+            this.transfer(params.password, params.amount, params.address, params.payment_id, params.priority, params.currency, params.note || "", params.address_book)
+            break
+
         case "add_address_book":
             this.addAddressBook(params.address, params.payment_id,
                 params.description, params.name, params.starred,
@@ -862,6 +866,75 @@ export class WalletRPC {
                 "ring_size": 15 // Always force a ring size of 10 (ringsize = mixin + 1)
             } : {
                 "destinations": [{ "amount": amount, "address": address }],
+                "priority": priority,
+                "ring_size": 15
+            }
+
+            if (payment_id) {
+                params.payment_id = payment_id
+            }
+
+            this.sendRPC(rpc_endpoint, params).then((data) => {
+                if (data.hasOwnProperty("error")) {
+                    let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
+                    this.sendGateway("set_tx_status", {
+                        code: -1,
+                        message: error,
+                        sending: false
+                    })
+                    return
+                }
+
+                this.sendGateway("set_tx_status", {
+                    code: 0,
+                    message: "Transaction successfully sent",
+                    sending: false
+                })
+
+                if (data.result) {
+                    const hash_list = data.result.tx_hash_list || []
+                    // Save notes
+                    if (note && note !== "") {
+                        hash_list.forEach(txid => this.saveTxNotes(txid, note))
+                    }
+                }
+            })
+
+            if (address_book.hasOwnProperty("save") && address_book.save) { this.addAddressBook(address, payment_id, address_book.description, address_book.name) }
+        })
+    }
+
+    swap (password, amount, address, payment_id, priority, currency, note, address_book = {}) {
+        crypto.pbkdf2(password, this.auth[2], 1000, 64, "sha512", (err, password_hash) => {
+            if (err) {
+                this.sendGateway("set_tx_status", {
+                    code: -1,
+                    message: "Internal error",
+                    sending: false
+                })
+                return
+            }
+            if (!this.isValidPasswordHash(password_hash)) {
+                this.sendGateway("set_tx_status", {
+                    code: -1,
+                    message: "Invalid password",
+                    sending: false
+                })
+                return
+            }
+
+            amount = parseFloat(amount).toFixed(4) * 1e4
+
+            let sweep_all = amount == this.wallet_state.unlocked_balance
+
+            const rpc_endpoint = "on_swap"
+            const params = sweep_all ? {
+                "address": address,
+                "account_index": 0,
+                "priority": priority,
+                "ring_size": 15 // Always force a ring size of 10 (ringsize = mixin + 1)
+            } : {
+                "destinations": [{ "swap_amount": amount, "eth_address": address }],
                 "priority": priority,
                 "ring_size": 15
             }

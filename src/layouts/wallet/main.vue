@@ -45,7 +45,7 @@
                 <router-link to="/wallet/swap">
                     <q-btn
                         class="large-btn primary"
-                        label="Send"
+                        label="wXEQ"
                         size="md"
                         icon-right="arrow_right_alt"
                         align="left"
