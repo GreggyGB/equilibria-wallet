@@ -1,7 +1,7 @@
-import { Daemon } from "./daemon"
-import { WalletRPC } from "./wallet-rpc"
-import { SCEE } from "./SCEE-Node"
-import { dialog } from "electron"
+import {Daemon} from "./daemon"
+import {WalletRPC} from "./wallet-rpc"
+import {SCEE} from "./SCEE-Node"
+import {dialog} from "electron"
 
 const WebSocket = require("ws")
 const os = require("os")
@@ -10,7 +10,7 @@ const path = require("path")
 const objectAssignDeep = require("object-assign-deep")
 
 export class Backend {
-    constructor (mainWindow) {
+    constructor(mainWindow) {
         this.mainWindow = mainWindow
         this.daemon = null
         this.walletd = null
@@ -23,7 +23,7 @@ export class Backend {
         this.scee = new SCEE()
     }
 
-    init (config) {
+    init(config) {
         if (os.platform() === "win32") {
             this.config_dir = "C:\\ProgramData\\equilibria"
             this.wallet_dir = `${os.homedir()}\\Documents\\equilibria`
@@ -103,14 +103,22 @@ export class Backend {
         }
 
         this.remotes = [
-          {host: "sanfran.equilibria.network",
-          port:9231},
-          {host: "newyork.equilibria.network",
-          port:9231},
-          {host: "singapore.equilibria.network",
-          port:9231},
-          {host: "frankfurt.equilibria.network",
-          port:9231}
+            {
+                host: "sanfran.equilibria.network",
+                port: 9231
+            },
+            {
+                host: "newyork.equilibria.network",
+                port: 9231
+            },
+            {
+                host: "singapore.equilibria.network",
+                port: 9231
+            },
+            {
+                host: "frankfurt.equilibria.network",
+                port: 9231
+            }
         ]
 
         this.token = config.token
@@ -125,7 +133,7 @@ export class Backend {
         })
     }
 
-    send (event, data = {}) {
+    send(event, data = {}) {
         let message = {
             event,
             data
@@ -133,127 +141,140 @@ export class Backend {
 
         let encrypted_data = this.scee.encryptString(JSON.stringify(message), this.token)
 
-        this.wss.clients.forEach(function each (client) {
+        this.wss.clients.forEach(function each(client) {
             if (client.readyState === WebSocket.OPEN) {
                 client.send(encrypted_data)
             }
         })
     }
 
-    receive (data) {
+    receive(data) {
         let decrypted_data = JSON.parse(this.scee.decryptString(data, this.token))
 
         // route incoming request to either the daemon, wallet, or here
         switch (decrypted_data.module) {
-        case "core":
-            this.handle(decrypted_data)
-            break
-        case "daemon":
-            if (this.daemon) {
-                this.daemon.handle(decrypted_data)
-            }
-            break
-        case "wallet":
-            if (this.walletd) {
-                this.walletd.handle(decrypted_data)
-            }
-            break
+            case "core":
+                this.handle(decrypted_data)
+                break
+            case "daemon":
+                if (this.daemon) {
+                    this.daemon.handle(decrypted_data)
+                }
+                break
+            case "wallet":
+                if (this.walletd) {
+                    this.walletd.handle(decrypted_data)
+                }
+                break
         }
     }
 
-    handle (data) {
+    handle(data) {
         let params = data.data
 
         switch (data.method) {
-        case "quick_save_config":
-            // save only partial config settings
-            Object.keys(params).map(key => {
-                this.config_data[key] = Object.assign(this.config_data[key], params[key])
-            })
-            fs.writeFile(this.config_file, JSON.stringify(this.config_data, null, 4), "utf8", () => {
-                this.send("set_app_data", {
-                    config: params,
-                    pending_config: params
+            case "quick_save_config":
+                // save only partial config settings
+                Object.keys(params).map(key => {
+                    this.config_data[key] = Object.assign(this.config_data[key], params[key])
                 })
-            })
-            break
-
-        case "save_config":
-            // check if config has changed
-            let config_changed = false
-            Object.keys(this.config_data).map(i => {
-                if (i == "appearance") return
-                Object.keys(this.config_data[i]).map(j => {
-                    if (this.config_data[i][j] !== params[i][j]) { config_changed = true }
-                })
-            })
-        case "save_config_init":
-            Object.keys(params).map(key => {
-                this.config_data[key] = Object.assign(this.config_data[key], params[key])
-            })
-
-            const validated = Object.keys(this.defaults)
-                .filter(k => k in this.config_data)
-                .map(k => [k, this.validate_values(this.config_data[k], this.defaults[k])])
-                .reduce((map, obj) => {
-                    map[obj[0]] = obj[1]
-                    return map
-                }, {})
-
-            // Validate deamon data
-            this.config_data = {
-                ...this.config_data,
-                ...validated
-            }
-
-            fs.writeFile(this.config_file, JSON.stringify(this.config_data, null, 4), "utf8", () => {
-                if (data.method == "save_config_init") {
-                    this.startup()
-                } else {
+                fs.writeFile(this.config_file, JSON.stringify(this.config_data, null, 4), "utf8", () => {
                     this.send("set_app_data", {
-                        config: this.config_data,
-                        pending_config: this.config_data
+                        config: params,
+                        pending_config: params
                     })
-                    if (config_changed) {
-                        this.send("settings_changed_reboot")
-                    }
-                }
-            })
-            break
-        case "init":
-            this.startup()
-            break
-
-        case "open_explorer":
-            if (params.type == "tx") {
-                require("electron").shell.openExternal("https://explorer.equilibria.network/tx/" + params.id)
-            }
-            break
-
-        case "open_url":
-            require("electron").shell.openExternal(params.url)
-            break
-
-        case "save_png":
-            let filename = dialog.showSaveDialog(this.mainWindow, {
-                title: "Save " + params.type,
-                filters: [{ name: "PNG", extensions: ["png"] }],
-                defaultPath: os.homedir()
-            })
-            if (filename) {
-                let base64Data = params.img.replace(/^data:image\/png;base64,/, "")
-                let binaryData = new Buffer(base64Data, "base64").toString("binary")
-                fs.writeFile(filename, binaryData, "binary", (err) => {
-                    if (err) { this.send("show_notification", { type: "negative", message: "Error saving " + params.type, timeout: 2000 }) } else { this.send("show_notification", { message: params.type + " saved to " + filename, timeout: 2000 }) }
                 })
-            }
-            break
+                break
 
-        default:
+            case "save_config":
+                // check if config has changed
+                let config_changed = false
+                Object.keys(this.config_data).map(i => {
+                    if (i == "appearance") return
+                    Object.keys(this.config_data[i]).map(j => {
+                        if (this.config_data[i][j] !== params[i][j]) {
+                            config_changed = true
+                        }
+                    })
+                })
+            case "save_config_init":
+                Object.keys(params).map(key => {
+                    this.config_data[key] = Object.assign(this.config_data[key], params[key])
+                })
+
+                const validated = Object.keys(this.defaults)
+                    .filter(k => k in this.config_data)
+                    .map(k => [k, this.validate_values(this.config_data[k], this.defaults[k])])
+                    .reduce((map, obj) => {
+                        map[obj[0]] = obj[1]
+                        return map
+                    }, {})
+
+                // Validate deamon data
+                this.config_data = {
+                    ...this.config_data,
+                    ...validated
+                }
+
+                fs.writeFile(this.config_file, JSON.stringify(this.config_data, null, 4), "utf8", () => {
+                    if (data.method == "save_config_init") {
+                        this.startup()
+                    } else {
+                        this.send("set_app_data", {
+                            config: this.config_data,
+                            pending_config: this.config_data
+                        })
+                        if (config_changed) {
+                            this.send("settings_changed_reboot")
+                        }
+                    }
+                })
+                break
+            case "init":
+                this.startup()
+                break
+
+            case "open_explorer":
+                if (params.type == "tx") {
+                    require("electron").shell.openExternal("https://explorer.equilibria.network/tx/" + params.id)
+                }
+                break
+
+            case "open_url":
+                require("electron").shell.openExternal(params.url)
+                break
+
+            case "save_png":
+                let filename = dialog.showSaveDialog(this.mainWindow, {
+                    title: "Save " + params.type,
+                    filters: [{name: "PNG", extensions: ["png"]}],
+                    defaultPath: os.homedir()
+                })
+                if (filename) {
+                    let base64Data = params.img.replace(/^data:image\/png;base64,/, "")
+                    let binaryData = new Buffer(base64Data, "base64").toString("binary")
+                    fs.writeFile(filename, binaryData, "binary", (err) => {
+                        if (err) {
+                            this.send("show_notification", {
+                                type: "negative",
+                                message: "Error saving " + params.type,
+                                timeout: 2000
+                            })
+                        } else {
+                            this.send("show_notification", {
+                                message: params.type + " saved to " + filename,
+                                timeout: 2000
+                            })
+                        }
+                    })
+                }
+                break
+
+            default:
         }
     }
 
-    startup () {
+    startup() {
         this.send("set_app_data", {
             remotes: this.remotes,
             defaults: this.defaults
@@ -275,7 +296,9 @@ export class Backend {
 
             // semi-shallow object merge
             Object.keys(disk_config_data).map(key => {
-                if (!this.config_data.hasOwnProperty(key)) { this.config_data[key] = {} }
+                if (!this.config_data.hasOwnProperty(key)) {
+                    this.config_data[key] = {}
+                }
                 this.config_data[key] = Object.assign(this.config_data[key], disk_config_data[key])
             })
 
@@ -296,7 +319,8 @@ export class Backend {
             }
 
             // save config file back to file, so updated options are stored on disk
-            fs.writeFile(this.config_file, JSON.stringify(this.config_data, null, 4), "utf8", () => {})
+            fs.writeFile(this.config_file, JSON.stringify(this.config_data, null, 4), "utf8", () => {
+            })
 
             this.send("set_app_data", {
                 config: this.config_data,
@@ -304,18 +328,20 @@ export class Backend {
             })
 
             // Make the wallet dir
-            const { wallet_data_dir, data_dir } = this.config_data.app
-            if (!fs.existsSync(wallet_data_dir)) { fs.mkdirpSync(wallet_data_dir) }
+            const {wallet_data_dir, data_dir} = this.config_data.app
+            if (!fs.existsSync(wallet_data_dir)) {
+                fs.mkdirpSync(wallet_data_dir)
+            }
 
             // Check to see if data and wallet directories exist
             const dirs_to_check = [{
                 path: data_dir,
                 error: "Data storge path not found"
             },
-            {
-                path: wallet_data_dir,
-                error: "Wallet data storge path not found"
-            }]
+                {
+                    path: wallet_data_dir,
+                    error: "Wallet data storge path not found"
+                }]
 
             for (const dir of dirs_to_check) {
                 // Check to see if dir exists
@@ -336,7 +362,7 @@ export class Backend {
                 }
             }
 
-            const { net_type } = this.config_data.app
+            const {net_type} = this.config_data.app
 
             const dirs = {
                 "mainnet": this.config_data.app.data_dir,
@@ -346,10 +372,14 @@ export class Backend {
 
             // Make sure we have the directories we need
             const net_dir = dirs[net_type]
-            if (!fs.existsSync(net_dir)) { fs.mkdirpSync(net_dir) }
+            if (!fs.existsSync(net_dir)) {
+                fs.mkdirpSync(net_dir)
+            }
 
             const log_dir = path.join(net_dir, "logs")
-            if (!fs.existsSync(log_dir)) { fs.mkdirpSync(log_dir) }
+            if (!fs.existsSync(log_dir)) {
+                fs.mkdirpSync(log_dir)
+            }
 
             this.daemon = new Daemon(this)
             this.walletd = new WalletRPC(this)
@@ -452,7 +482,7 @@ export class Backend {
                                     code: 0 // Ready
                                 }
                             })
-                        // eslint-disable-next-line
+                            // eslint-disable-next-line
                         }).catch(error => {
                             this.send("set_app_data", {
                                 status: {
@@ -460,12 +490,20 @@ export class Backend {
                                 }
                             })
                         })
-                    // eslint-disable-next-line
+                        // eslint-disable-next-line
                     }).catch(error => {
                         if (this.config_data.daemons[net_type].type == "remote") {
-                            this.send("show_notification", { type: "negative", message: "Remote daemon cannot be reached", timeout: 2000 })
+                            this.send("show_notification", {
+                                type: "negative",
+                                message: "Remote daemon cannot be reached",
+                                timeout: 2000
+                            })
                         } else {
-                            this.send("show_notification", { type: "negative", message: "Local daemon internal error", timeout: 2000 })
+                            this.send("show_notification", {
+                                type: "negative",
+                                message: "Local daemon internal error",
+                                timeout: 2000
+                            })
                         }
                         this.send("set_app_data", {
                             status: {
@@ -473,7 +511,7 @@ export class Backend {
                             }
                         })
                     })
-                // eslint-disable-next-line
+                    // eslint-disable-next-line
                 }).catch(error => {
                     this.send("set_app_data", {
                         status: {
@@ -485,12 +523,18 @@ export class Backend {
         })
     }
 
-    quit () {
+    quit() {
         return new Promise((resolve, reject) => {
             let process = []
-            if (this.daemon) { process.push(this.daemon.quit()) }
-            if (this.walletd) { process.push(this.walletd.quit()) }
-            if (this.wss) { this.wss.close() }
+            if (this.daemon) {
+                process.push(this.daemon.quit())
+            }
+            if (this.walletd) {
+                process.push(this.walletd.quit())
+            }
+            if (this.wss) {
+                this.wss.close()
+            }
 
             Promise.all(process).then(() => {
                 resolve()
@@ -499,9 +543,9 @@ export class Backend {
     }
 
     // Replace any invalid value with default values
-    validate_values (values, defaults) {
+    validate_values(values, defaults) {
         const isDictionary = (v) => typeof v === "object" && v !== null && !(v instanceof Array) && !(v instanceof Date)
-        const modified = { ...values }
+        const modified = {...values}
 
         // Make sure we have valid defaults
         if (!isDictionary(defaults)) return modified

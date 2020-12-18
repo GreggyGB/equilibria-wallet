@@ -42,6 +42,15 @@
                         align="left"
                     />
                 </router-link>
+                <router-link to="/wallet/swap">
+                    <q-btn
+                        class="large-btn primary"
+                        label="Send"
+                        size="md"
+                        icon-right="arrow_right_alt"
+                        align="left"
+                    />
+                </router-link>
                 <router-link to="/wallet/addressbook" class="address">
                     <q-btn
                         class="single-icon"
