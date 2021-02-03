@@ -110,14 +110,6 @@ export class Backend {
             {
                 host: "newyork.equilibria.network",
                 port: 9231
-            },
-            {
-                host: "singapore.equilibria.network",
-                port: 9231
-            },
-            {
-                host: "frankfurt.equilibria.network",
-                port: 9231
             }
         ]
 
