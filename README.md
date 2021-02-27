@@ -3,7 +3,7 @@
 ### Introduction
 A Private and Decentralized Oracle Solution
 
-More information on the project can be found on the [website](https://equilibria.network). Equilibria is an open source project, and we encourage contributions from anyone with something to offer. 
+More information on the project can be found on the [website](https://equilibria.network). Equilibria is an open source project, and we encourage contributions from anyone with something to offer.
 <p align="center">
  <img src="https://pbs.twimg.com/media/D2-ej8HU4AEB2l-.jpg" width="600">
 </p>
@@ -18,6 +18,7 @@ Please submit any changes as pull requests to the development branch, all change
 
 #### Pre-requisites
 - Download latest [Equilibria](https://github.com/EquilibriaCC/Equilibria)
+- Windows only: Set execution policy to [Unrestricted]((If you are on windows, set your execution policy to Unrestricted (https://docs.vmware.com/en/vRealize-Automation/7.6/com.vmware.vra.iaas.hp.doc/GUID-9670AFC5-76B8-4321-822A-BCE05800DB5B.html)).
 
 #### Commands
 ```

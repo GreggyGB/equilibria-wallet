@@ -4,7 +4,9 @@
         <main-menu />
         <q-toolbar-title>
             <div class="flex items-center justify-center" style="margin-top:0px">
-                <img src="statics/equilibria.svg" height="100">
+                <div style="padding-left: auto; padding-right: auto; padding-top: auto; padding-bottom: auto;">
+                    <img src="statics/xeq_logo_with_padding.png" height="60">
+                </div>
             </div>
         </q-toolbar-title>
     </q-layout-header>
@@ -46,6 +48,15 @@
                     <q-btn
                         class="large-btn primary"
                         label="wXEQ"
+                        size="md"
+                        icon-right="arrow_right_alt"
+                        align="left"
+                    />
+                </router-link>
+                <router-link to="/wallet/staking-pools">
+                    <q-btn
+                        class="large-btn primary"
+                        label="Staking Pools"
                         size="md"
                         icon-right="arrow_right_alt"
                         align="left"
