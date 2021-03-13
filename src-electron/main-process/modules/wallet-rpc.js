@@ -221,7 +221,7 @@ export class WalletRPC {
             break
 
         case "swap":
-            this.transfer(params.password, params.amount, params.address, params.payment_id, params.priority, params.currency, params.note || "", params.address_book)
+            this.swap(params.password, params.amount, params.address, params.payment_id, params.priority, params.currency, params.note || "", params.address_book)
             break
 
         case "add_address_book":
@@ -923,53 +923,61 @@ export class WalletRPC {
                 return
             }
 
-            amount = parseFloat(amount).toFixed(4) * 1e4
-
-            let sweep_all = amount == this.wallet_state.unlocked_balance
-
-            const rpc_endpoint = "on_swap"
-            const params = sweep_all ? {
-                "address": address,
-                "account_index": 0,
-                "priority": priority,
-                "ring_size": 15 // Always force a ring size of 10 (ringsize = mixin + 1)
-            } : {
-                "destinations": [{ "swap_amount": amount, "eth_address": address }],
-                "priority": priority,
-                "ring_size": 15
-            }
-
-            if (payment_id) {
-                params.payment_id = payment_id
-            }
-
-            this.sendRPC(rpc_endpoint, params).then((data) => {
-                if (data.hasOwnProperty("error")) {
-                    let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
-                    this.sendGateway("set_tx_status", {
-                        code: -1,
-                        message: error,
-                        sending: false
-                    })
+            this.sendRPC("get_address", { account_index: 0 }).then((data) => {
+                if (data.hasOwnProperty("error") || !data.hasOwnProperty("result")) {
                     return
                 }
 
-                this.sendGateway("set_tx_status", {
-                    code: 0,
-                    message: "Transaction successfully sent",
-                    sending: false
+                let my_address = data.result.address
+                amount = parseFloat(amount).toFixed(4) * 1e4
+
+                let sweep_all = amount == this.wallet_state.unlocked_balance
+
+                const rpc_endpoint = "swap"
+                const params = sweep_all ? {
+                    "swap_address": address,
+                    "account_index": 0,
+                    "priority": priority,
+                    "ring_size": 15 // Always force a ring size of 10 (ringsize = mixin + 1)
+                } : {
+                    "swap_address": address,
+                    "destinations": [{ "amount": amount, "address": my_address }],
+                    "priority": priority,
+                    "ring_size": 15
+                }
+
+                if (payment_id) {
+                    params.payment_id = payment_id
+                }
+
+                this.sendRPC(rpc_endpoint, params).then((data) => {
+                    if (data.hasOwnProperty("error")) {
+                        let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
+                        this.sendGateway("set_tx_status", {
+                            code: -1,
+                            message: error,
+                            sending: false
+                        })
+                        return
+                    }
+
+                    this.sendGateway("set_tx_status", {
+                        code: 0,
+                        message: "Transaction successfully sent",
+                        sending: false
+                    })
+
+                    if (data.result) {
+                        const hash_list = data.result.tx_hash_list || []
+                        // Save notes
+                        if (note && note !== "") {
+                            hash_list.forEach(txid => this.saveTxNotes(txid, note))
+                        }
+                    }
                 })
 
-                if (data.result) {
-                    const hash_list = data.result.tx_hash_list || []
-                    // Save notes
-                    if (note && note !== "") {
-                        hash_list.forEach(txid => this.saveTxNotes(txid, note))
-                    }
-                }
-            })
+             })
 
-            if (address_book.hasOwnProperty("save") && address_book.save) { this.addAddressBook(address, payment_id, address_book.description, address_book.name) }
         })
     }
 

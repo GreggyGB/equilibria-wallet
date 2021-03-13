@@ -506,7 +506,7 @@ export default {
                     sending: true
                 })
                 const newTx = objectAssignDeep.noMutate(this.newTx, {password})
-                this.$gateway.send("wallet", "transfer", newTx)
+                this.$gateway.send("wallet", "swap", newTx)
             }).catch(() => {
             })
         }
