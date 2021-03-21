@@ -1,4 +1,5 @@
 import child_process from "child_process"
+
 const request = require("request-promise")
 const queue = require("promise-queue")
 const http = require("http")
@@ -6,6 +7,7 @@ const os = require("os")
 const fs = require("fs-extra")
 const path = require("path")
 const crypto = require("crypto")
+let fetch = require("isomorphic-unfetch")
 
 export class WalletRPC {
     constructor (backend) {
@@ -86,9 +88,13 @@ export class WalletRPC {
                     args.push("--stagenet")
                 }
 
-                if (fs.existsSync(log_file)) { fs.truncateSync(log_file, 0) }
+                if (fs.existsSync(log_file)) {
+                    fs.truncateSync(log_file, 0)
+                }
 
-                if (!fs.existsSync(this.wallet_dir)) { fs.mkdirpSync(this.wallet_dir) }
+                if (!fs.existsSync(this.wallet_dir)) {
+                    fs.mkdirpSync(this.wallet_dir)
+                }
 
                 if (process.platform === "win32") {
                     this.walletRPCProcess = child_process.spawn(path.join(__ryo_bin, "wallet-rpc.exe"), args)
@@ -144,7 +150,7 @@ export class WalletRPC {
                             resolve()
                         } else {
                             if (data.error.cause &&
-                               data.error.cause.code === "ECONNREFUSED") {
+                                data.error.cause.code === "ECONNREFUSED") {
                                 // Ignore
                             } else {
                                 clearInterval(intrvl)
@@ -345,7 +351,11 @@ export class WalletRPC {
 
             this.sendGateway("reset_wallet_error")
             this.backend.daemon.timestampToHeight(timestamp).then((height) => {
-                if (height === false) { this.sendGateway("set_wallet_error", { status: { code: -1, message: "Invalid restore date" } }) } else { this.restoreWallet(filename, password, seed, "height", height) }
+                if (height === false) {
+                    this.sendGateway("set_wallet_error", { status: { code: -1, message: "Invalid restore date" } })
+                } else {
+                    this.restoreWallet(filename, password, seed, "height", height)
+                }
             })
             return
         }
@@ -386,7 +396,11 @@ export class WalletRPC {
             timestamp = timestamp - (timestamp % 86400000) - 86400000
 
             this.backend.daemon.timestampToHeight(timestamp).then((height) => {
-                if (height === false) { this.sendGateway("set_wallet_error", { status: { code: -1, message: "Invalid restore date" } }) } else { this.restoreViewWallet(filename, password, address, viewkey, "height", height) }
+                if (height === false) {
+                    this.sendGateway("set_wallet_error", { status: { code: -1, message: "Invalid restore date" } })
+                } else {
+                    this.restoreViewWallet(filename, password, address, viewkey, "height", height)
+                }
             })
             return
         }
@@ -435,7 +449,12 @@ export class WalletRPC {
             let destination = path.join(this.wallet_dir, filename)
 
             if (fs.existsSync(destination) || fs.existsSync(destination + ".keys")) {
-                this.sendGateway("set_wallet_error", { status: { code: -1, message: "Wallet with name already exists" } })
+                this.sendGateway("set_wallet_error", {
+                    status: {
+                        code: -1,
+                        message: "Wallet with name already exists"
+                    }
+                })
                 return
             }
 
@@ -606,6 +625,9 @@ export class WalletRPC {
                 transactions: {
                     tx_list: []
                 },
+                pools: {
+                    pool_list: []
+                },
                 address_list: {
                     primary: [],
                     used: [],
@@ -629,7 +651,7 @@ export class WalletRPC {
                     })
                 } else if (n.method == "getbalance") {
                     if (this.wallet_state.balance == n.result.balance &&
-                       this.wallet_state.unlocked_balance == n.result.unlocked_balance) {
+                        this.wallet_state.unlocked_balance == n.result.unlocked_balance) {
                         // continue
                     }
 
@@ -642,8 +664,10 @@ export class WalletRPC {
                     // if balance has recently changed, get updated list of transactions and used addresses
                     let actions = [
                         this.getTransactions(),
-                        this.getAddressList()
+                        this.getAddressList(),
+                        this.getPools()
                     ]
+
                     if (true || extended) {
                         actions.push(this.getAddressBook())
                     }
@@ -900,7 +924,9 @@ export class WalletRPC {
                 }
             })
 
-            if (address_book.hasOwnProperty("save") && address_book.save) { this.addAddressBook(address, payment_id, address_book.description, address_book.name) }
+            if (address_book.hasOwnProperty("save") && address_book.save) {
+                this.addAddressBook(address, payment_id, address_book.description, address_book.name)
+            }
         })
     }
 
@@ -969,7 +995,9 @@ export class WalletRPC {
                 }
             })
 
-            if (address_book.hasOwnProperty("save") && address_book.save) { this.addAddressBook(address, payment_id, address_book.description, address_book.name) }
+            if (address_book.hasOwnProperty("save") && address_book.save) {
+                this.addAddressBook(address, payment_id, address_book.description, address_book.name)
+            }
         })
     }
 
@@ -1085,8 +1113,8 @@ export class WalletRPC {
                 wallet.address_list.unused = wallet.address_list.unused.slice(0, 10)
 
                 if (wallet.address_list.unused.length < num_unused_addresses &&
-                   !wallet.address_list.primary[0].address.startsWith("RYoK") &&
-                   !wallet.address_list.primary[0].address.startsWith("RYoH")) {
+                    !wallet.address_list.primary[0].address.startsWith("RYoK") &&
+                    !wallet.address_list.primary[0].address.startsWith("RYoH")) {
                     for (let n = wallet.address_list.unused.length; n < num_unused_addresses; n++) {
                         this.sendRPC("create_address", { account_index: 0 }).then((data) => {
                             wallet.address_list.unused.push(data.result)
@@ -1103,9 +1131,38 @@ export class WalletRPC {
         })
     }
 
+    getPools () {
+        return new Promise((resolve, reject) => {
+            fetch("http://sanfran.equilibria.network:9231/json_rpc", {
+                body: "{\"jsonrpc\":\"2.0\",\"id\":\"0\",\"method\":\"" + "get_service_nodes" + "\"}",
+                headers: { "Content-Type": "application/json" },
+                method: "POST"
+            })
+                .then(res => res.json()).then((result) => {
+                    let wallet = {
+                        pools: {
+                            pool_list: result.result.service_node_states
+                        }
+                    }
+                    resolve(wallet)
+                    // console.log(result.result.service_node_states)
+                }).catch(
+                    (error) => {
+                    console.log(error)
+                }
+                )
+        })
+    }
+
     getTransactions () {
         return new Promise((resolve, reject) => {
-            this.sendRPC("get_transfers", { in: true, out: true, pending: true, failed: true, pool: true }).then((data) => {
+            this.sendRPC("get_transfers", {
+                in: true,
+                out: true,
+                pending: true,
+                failed: true,
+                pool: true
+            }).then((data) => {
                 if (data.hasOwnProperty("error") || !data.hasOwnProperty("result")) {
                     resolve({})
                     return
@@ -1180,7 +1237,11 @@ export class WalletRPC {
                             entry.payment_id = entry.payment_id.substring(0, 16)
                         }
 
-                        if (entry.starred) { wallet.address_list.address_book_starred.push(entry) } else { wallet.address_list.address_book.push(entry) }
+                        if (entry.starred) {
+                            wallet.address_list.address_book_starred.push(entry)
+                        } else {
+                            wallet.address_list.address_book.push(entry)
+                        }
                     }
                 }
 
@@ -1212,10 +1273,11 @@ export class WalletRPC {
         let params = {
             address
         }
-        if (payment_id != null) { params.payment_id = payment_id }
+        if (payment_id != null) {
+            params.payment_id = payment_id
+        }
 
-        let desc = [
-        ]
+        let desc = []
         if (starred) {
             desc.push("starred")
         }
@@ -1257,7 +1319,11 @@ export class WalletRPC {
                 filename = path.join(filename, "key_image_export")
             }
 
-            const onError = () => this.sendGateway("show_notification", { type: "negative", message: "Error exporting key images", timeout: 2000 })
+            const onError = () => this.sendGateway("show_notification", {
+                type: "negative",
+                message: "Error exporting key images",
+                timeout: 2000
+            })
 
             this.sendRPC("export_key_images").then((data) => {
                 if (data.hasOwnProperty("error") || !data.hasOwnProperty("result")) {
@@ -1267,9 +1333,17 @@ export class WalletRPC {
 
                 if (data.result.signed_key_images) {
                     fs.outputJSONSync(filename, data.result.signed_key_images)
-                    this.sendGateway("show_notification", { message: "Key images exported to " + filename, timeout: 2000 })
+                    this.sendGateway("show_notification", {
+                        message: "Key images exported to " + filename,
+                        timeout: 2000
+                    })
                 } else {
-                    this.sendGateway("show_notification", { type: "warning", textColor: "black", message: "No key images found to export", timeout: 2000 })
+                    this.sendGateway("show_notification", {
+                        type: "warning",
+                        textColor: "black",
+                        message: "No key images found to export",
+                        timeout: 2000
+                    })
                 }
             }).catch(onError)
         })
@@ -1286,9 +1360,15 @@ export class WalletRPC {
                 return
             }
 
-            if (filename == null) { filename = path.join(this.wallet_data_dir, "images", this.wallet_state.name, "key_image_export") }
+            if (filename == null) {
+                filename = path.join(this.wallet_data_dir, "images", this.wallet_state.name, "key_image_export")
+            }
 
-            const onError = (message) => this.sendGateway("show_notification", { type: "negative", message, timeout: 2000 })
+            const onError = (message) => this.sendGateway("show_notification", {
+                type: "negative",
+                message,
+                timeout: 2000
+            })
 
             fs.readJSON(filename).then(signed_key_images => {
                 this.sendRPC("import_key_images", { signed_key_images }).then((data) => {
@@ -1372,10 +1452,12 @@ export class WalletRPC {
 
         fs.readdirSync(this.wallet_dir).forEach(filename => {
             if (filename.endsWith(".keys") ||
-               filename.endsWith(".meta.json") ||
-               filename.endsWith(".address.txt") ||
-               filename.endsWith(".bkp-old") ||
-               filename.endsWith(".unportable")) { return }
+                filename.endsWith(".meta.json") ||
+                filename.endsWith(".address.txt") ||
+                filename.endsWith(".bkp-old") ||
+                filename.endsWith(".unportable")) {
+                return
+            }
 
             switch (filename) {
             case ".DS_Store":
@@ -1438,12 +1520,18 @@ export class WalletRPC {
             }
             for (var i = 0; i < legacy_paths.length; i++) {
                 let legacy_config_path = path.join(legacy_paths[i], "config", "wallet_info.json")
-                if (this.net_type === "test") { legacy_config_path = path.join(legacy_paths[i], "testnet", "config", "wallet_info.json") }
-                if (!fs.existsSync(legacy_config_path)) { continue }
+                if (this.net_type === "test") {
+                    legacy_config_path = path.join(legacy_paths[i], "testnet", "config", "wallet_info.json")
+                }
+                if (!fs.existsSync(legacy_config_path)) {
+                    continue
+                }
 
                 let legacy_config = JSON.parse(fs.readFileSync(legacy_config_path, "utf8"))
                 let legacy_wallet_path = legacy_config.wallet_filepath
-                if (!fs.existsSync(legacy_wallet_path)) { continue }
+                if (!fs.existsSync(legacy_wallet_path)) {
+                    continue
+                }
 
                 let legacy_address = ""
                 if (fs.existsSync(legacy_wallet_path + ".address.txt")) {
@@ -1463,13 +1551,21 @@ export class WalletRPC {
                 return
             }
             if (!this.isValidPasswordHash(password_hash)) {
-                this.sendGateway("show_notification", { type: "negative", message: "Invalid old password", timeout: 2000 })
+                this.sendGateway("show_notification", {
+                    type: "negative",
+                    message: "Invalid old password",
+                    timeout: 2000
+                })
                 return
             }
 
             this.sendRPC("change_wallet_password", { old_password, new_password }).then((data) => {
                 if (data.hasOwnProperty("error") || !data.hasOwnProperty("result")) {
-                    this.sendGateway("show_notification", { type: "negative", message: "Error changing password", timeout: 2000 })
+                    this.sendGateway("show_notification", {
+                        type: "negative",
+                        message: "Error changing password",
+                        timeout: 2000
+                    })
                     return
                 }
 
@@ -1538,7 +1634,9 @@ export class WalletRPC {
         // if wallet is closed, do not send any wallet data to gateway
         // this is for the case that we close the wallet at the same
         // after another action has started, but before it has finished
-        if (!this.wallet_state.open && method == "set_wallet_data") { return }
+        if (!this.wallet_state.open && method == "set_wallet_data") {
+            return
+        }
         this.backend.send(method, data)
     }
 

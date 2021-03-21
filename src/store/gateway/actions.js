@@ -21,6 +21,9 @@ export const resetWalletData = (state) => {
         transactions: {
             tx_list: []
         },
+        pools: {
+            pool_list: []
+        },
         address_list: {
             used: [],
             unused: [],

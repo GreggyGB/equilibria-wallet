@@ -107,6 +107,11 @@ export default [
                     import("pages/wallet/swap")
             },
             {
+                path: "staking-pools",
+                component: () =>
+                    import("pages/wallet/staking-pools")
+            },
+            {
                 path: "addressbook",
                 component: () =>
                     import("pages/wallet/addressbook")

@@ -45,6 +45,9 @@ export default {
         transactions: {
             tx_list: []
         },
+        pools: {
+            pool_list: []
+        },
         address_list: {
             used: [],
             unused: [],
