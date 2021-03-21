@@ -3,32 +3,31 @@
 
         <div class="row q-pt-sm q-mx-md q-mb-sm items-end non-selectable">
 
-            <div class="col-5">
-                Staking Pools
-            </div>
-
             <div style="padding-top: 15px;" class="tx-list">
-                <div v-for="item in tx_list" :key="item.service_node_pubkey">
-                    <div style="padding-top: 10px"/>
-                    <div style="background-color: #222222;padding:5px; border-radius: 5px">
-                        <div style="padding-top: 5px"/>
-                        <p class="type" style="color:white">
-                            Oracle Node ID: {{ item.service_node_pubkey }}
-                        </p>
-                        <p class="main" style="color:white">
-                            Amount Staked: {{
-                                (item.total_contributed / 10000).toLocaleString()
-                            }}/{{ (item.staking_requirement / 10000).toLocaleString() }}
-                        </p>
-                        <q-field class="q-pt-sm">
-                            <q-btn style="background-color: #14afde"
-                                class="send-btn"
-                                color="positive"
-                                @click="handleClick(item.service_node_pubkey, item.operator_address, (item.staking_requirement - item.total_contributed)/10000)"
-                                label="Join"/>
-                        </q-field>
+                <div class="row justify-center">
+                    <div v-for="item in tx_list" :key="item.service_node_pubkey">
+                        <div class="col-2" style="padding: 15px; margin-left: auto; margin-right: auto;">
+                        <div
+                            style="background-color: #222222; border-radius: 5px;margin:5%; padding: 10px">
+                            <p class="type" style="color:white">
+                                Oracle Node ID: {{ item.service_node_pubkey.substring(0, 4) }}...{{ item.service_node_pubkey.substring(item.service_node_pubkey.length-5, item.service_node_pubkey.length-1) }}
+                            </p>
+                            <p class="main" style="color:white">
+                                Amount Staked: {{
+                                    (item.total_contributed / 10000).toLocaleString()
+                                }}/{{ (item.staking_requirement / 10000).toLocaleString() }}
+                            </p>
+                            <q-field class="q-pt-sm">
+                                <q-btn style="background-color: #14afde"
+                                       class="send-btn"
+                                       color="positive"
+                                       @click="handleClick(item.service_node_pubkey, item.operator_address, (item.staking_requirement - item.total_contributed)/10000)"
+                                       label="Join"/>
+                            </q-field>
+                        </div>
+                        <div style="padding-top: 10px"/>
+                        </div>
                     </div>
-                    <div style="padding-top: 10px"/>
                 </div>
             </div>
             <q-modal v-model="openedSend" minimized content-css="padding: 0 2rem 2rem 2rem" class="confirmBtn">
@@ -149,7 +148,7 @@ export default {
                     message: "Amount would cause the staked amount to be greater than the pool max"
                 })
                 return
-            }else if (this.$v.newTx.amount.$error) {
+            } else if (this.$v.newTx.amount.$error) {
                 this.$q.notify({
                     type: "negative",
                     timeout: 1000,
