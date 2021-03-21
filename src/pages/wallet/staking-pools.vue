@@ -1,223 +1,78 @@
 <template>
-    <q-page class="send">
-        <template v-if="view_only">
-            <div class="q-pa-md">
+    <q-page>
 
-                View-only mode. Please load full wallet in order to send coins.
+        <div class="row q-pt-sm q-mx-md q-mb-sm items-end non-selectable">
 
-            </div>
-        </template>
-        <template v-else>
-
-            <div class="q-pa-md">
-                <div class="col q-mt-sm">
-                    <!-- Amount -->
-<!--                    <div class="col-4">-->
-                        <tritonField label="Amount of XEQ to Swap for wXEQ" :error="$v.newTx.amount.$error">
-                            <q-input v-model="newTx.amount"
-                                     :dark="theme=='dark'"
-                                     type="number"
-                                     min="0"
-                                     :max="unlocked_balance / 1e4"
-                                     placeholder="0"
-                                     @blur="$v.newTx.amount.$touch"
-                                     hide-underline
-                                     @change.native="conversionFromXtri()"
-                            />
-                            <q-btn color="secondary" @click="newTx.amount = unlocked_balance / 1e4; conversionFromXtri()" :text-color="theme=='dark'?'white':'dark'">All</q-btn>
-                        </tritonField>
-<!--                    </div>-->
-
-                    <!-- Currency -->
-<!--                    <div class ="col-4">-->
-<!--                        <tritonField label="Currency">-->
-<!--                            <q-select :dark="theme=='dark'"-->
-<!--                                      v-model="newTx.currency"-->
-<!--                                      :options="currencyOptions"-->
-<!--                                      hide-underline-->
-<!--                                      @input="conversionToXtri()"-->
-<!--                            />-->
-<!--                        </tritonField>-->
-<!--                    </div>-->
-
-                    <!-- Priority -->
-<!--                    <div class="col-4">-->
-<!--                        <tritonField label="Priority">-->
-<!--                            <q-select :dark="theme=='dark'"-->
-<!--                                      v-model="newTx.priority"-->
-<!--                                      :options="priorityOptions"-->
-<!--                                      hide-underline-->
-<!--                            />-->
-<!--                        </tritonField>-->
-<!--                    </div>-->
-
-                </div>
-
-                <!-- amount in xeq-->
-<!--                <div class="row gutter-md">-->
-<!--                    <div class="col-4">-->
-<!--                        <tritonField label="Amount in xeq" :error="$v.newTx.amount.$error">-->
-<!--                            <q-input v-model="newTx.amount"-->
-<!--                                     :dark="theme=='dark'"-->
-<!--                                     type="number"-->
-<!--                                     min="0"-->
-<!--                                     :max="unlocked_balance / 1e4"-->
-<!--                                     placeholder="0"-->
-<!--                                     @blur="$v.newTx.amount.$touch"-->
-<!--                                     hide-underline-->
-<!--                                     @change.native="conversionFromXtri()"-->
-<!--                            />-->
-<!--                            <q-btn color="secondary" @click="newTx.amount = unlocked_balance / 1e4; conversionFromXtri()" :text-color="theme=='dark'?'white':'dark'">All</q-btn>-->
-<!--                        </tritonField>-->
-
-<!--                    </div>-->
-<!--                </div>-->
-
-                <!-- Address -->
-                <div class="col q-mt-sm">
-                    <tritonField label="Ethereum Address" >
-<!--                                 :error="$v.newTx.address.$error"-->
-                        <q-input v-model="newTx.address"
-                                 :dark="theme=='dark'"
-                                 @blur="$v.newTx.address.$touch"
-                                 :placeholder="'0x...'"
-                                 hide-underline
-                        />
-                        <q-btn color="secondary" :text-color="theme=='dark'?'white':'dark'" to="addressbook">Contacts</q-btn>
-                    </tritonField>
-                </div>
-
-<!--                &lt;!&ndash; Payment ID &ndash;&gt;-->
-<!--                <div class="col q-mt-sm">-->
-<!--                    <tritonField label="Payment id" :error="$v.newTx.payment_id.$error" optional>-->
-<!--                        <q-input v-model="newTx.payment_id"-->
-<!--                                 :dark="theme=='dark'"-->
-<!--                                 @blur="$v.newTx.payment_id.$touch"-->
-<!--                                 placeholder="16 or 64 hexadecimal characters"-->
-<!--                                 hide-underline-->
-<!--                        />-->
-<!--                    </tritonField>-->
-<!--                </div>-->
-
-<!--                &lt;!&ndash; Notes &ndash;&gt;-->
-<!--                <div class="col q-mt-sm">-->
-<!--                    <tritonField label="Notes" optional>-->
-<!--                        <q-input v-model="newTx.note"-->
-<!--                                 type="textarea"-->
-<!--                                 :dark="theme=='dark'"-->
-<!--                                 placeholder="Additional notes to attach to the transaction"-->
-<!--                                 hide-underline-->
-<!--                        />-->
-<!--                    </tritonField>-->
-<!--                </div>-->
-
-                <!-- Save to address book -->
-                <q-field>
-                    <q-checkbox v-model="newTx.address_book.save" label="Save to address book" :dark="theme=='dark'" />
-                </q-field>
-
-                <div v-if="newTx.address_book.save">
-                    <tritonField label="Name" optional>
-                        <q-input v-model="newTx.address_book.name"
-                                 :dark="theme=='dark'"
-                                 placeholder="Name that belongs to this address"
-                                 hide-underline
-                        />
-                    </tritonField>
-                    <tritonField class="q-mt-sm" label="Notes" optional>
-                        <q-input v-model="newTx.address_book.description"
-                                 type="textarea"
-                                 rows="2"
-                                 :dark="theme=='dark'"
-                                 placeholder="Additional notes"
-                                 hide-underline
-                        />
-                    </tritonField>
-                </div>
-
-                <q-field class="q-pt-sm">
-                    <q-btn
-                        class="send-btn"
-                        :disable="!is_able_to_send"
-                        color="positive" @click="openedSend = true" label="Send" />
-                </q-field>
-
+            <div class="col-5">
+                Staking Pools
             </div>
 
-            <q-inner-loading :visible="tx_status.sending" :dark="theme=='dark'">
-                <q-spinner color="primary" :size="30" />
-            </q-inner-loading>
-
+            <div style="padding-top: 15px;" class="tx-list">
+                <div v-for="item in tx_list" :key="item.service_node_pubkey">
+                    <div style="padding-top: 10px"/>
+                    <div style="background-color: #222222;padding:5px; border-radius: 5px">
+                        <div style="padding-top: 5px"/>
+                        <p class="type" style="color:white">
+                            Oracle Node ID: {{ item.service_node_pubkey }}
+                        </p>
+                        <p class="main" style="color:white">
+                            Amount Staked: {{
+                                (item.total_contributed / 10000).toLocaleString()
+                            }}/{{ (item.staking_requirement / 10000).toLocaleString() }}
+                        </p>
+                        <q-field class="q-pt-sm">
+                            <q-btn style="background-color: #14afde"
+                                class="send-btn"
+                                color="positive"
+                                @click="handleClick(item.service_node_pubkey, item.operator_address, (item.staking_requirement - item.total_contributed)/10000)"
+                                label="Join"/>
+                        </q-field>
+                    </div>
+                    <div style="padding-top: 10px"/>
+                </div>
+            </div>
             <q-modal v-model="openedSend" minimized content-css="padding: 0 2rem 2rem 2rem" class="confirmBtn">
-                <h5>CONFIRM AMOUNT</h5>
-                <tritonField :error="$v.newTx.amount.$error">
-                    <q-input v-model="newTx.amount"
-                             :dark="theme=='dark'"
-                             type="number"
-                             min="0"
-                             :max="unlocked_balance / 1e4"
-                             placeholder="0"
-                             @blur="$v.newTx.amount.$touch"
-                             hide-underline
-                             suffix="xeq"
-                    />
-
-                </tritonField>
-                <h5>CONFIRM ADDRESS</h5>
-                <tritonField>
-                    <q-input v-model="newTx.address"
-                             :dark="theme=='dark'"
-                             @blur="$v.newTx.address.$touch"
-                             :placeholder="'0x...'"
-                             hide-underline
+                <h5>CONFIRM AMOUNT TO STAKE</h5>
+                <p>Oracle ID: {{ oracleKey }}</p>
+                <p>Max Amount: {{ maxAmount }}</p>
+                <tritonField label="Amount">
+                    <q-input
+                        v-model="newTx.amount"
+                        type="number"
+                        min="0"
+                        :max="maxAmount"
+                        placeholder="0"
+                        hide-underline
                     />
                 </tritonField>
-                <q-btn class="sendBtn"
-                       color="positive"
-                       @click="openedSend = false, send()"
-                       label="SEND"
-                />
+                <div style="margin-left: auto; margin-right: auto;padding-top: 10px">
+                    <q-btn
+                        style="background-color: #14afde"
+                        class="send-btn"
+                        color="positive" @click="send()" label="Confirm Stake"/>
+                </div>
             </q-modal>
 
-        </template>
-
+        </div>
     </q-page>
 </template>
 
 <script>
-import axios from "axios"
 import { mapState } from "vuex"
-import { required, decimal } from "vuelidate/lib/validators"
-import { payment_id, address, greater_than_zero } from "src/validators/common"
-import Identicon from "components/identicon"
+import TxList from "components/pools_list"
 import tritonField from "components/triton_field"
-import WalletPassword from "src/mixins/wallet_password"
-const objectAssignDeep = require("object-assign-deep");
+import WalletPassword from "../../mixins/wallet_password"
 
 export default {
-    computed: mapState({
-        theme: state => state.gateway.app.config.appearance.theme,
-        view_only: state => state.gateway.wallet.info.view_only,
-        unlocked_balance: state => state.gateway.wallet.info.unlocked_balance,
-        tx_status: state => state.gateway.tx_status,
-        is_ready (state) {
-            return this.$store.getters["gateway/isReady"]
-        },
-        is_able_to_send (state) {
-            return this.$store.getters["gateway/isAbleToSend"]
-        },
-        address_placeholder (state) {
-            const wallet = state.gateway.wallet.info;
-            const prefix = (wallet && wallet.address && wallet.address[0]) || "L";
-            return `${prefix}..`;
-        }
-    }),
-
-
     data () {
         return {
+            tx_type: "all",
+            tx_txid: "",
+            status: "Not Joined",
             openedSend: false,
-            sending: false,
+            oracleKey: "",
+            oracleAddress: "",
+            maxAmount: "",
             newTx: {
                 amount: 0,
                 address: "",
@@ -230,240 +85,71 @@ export default {
                     description: ""
                 }
             },
-            priorityOptions: [
-                {label: "Automatic", value: 0},
-                {label: "Slow", value: 1},
-                {label: "Normal", value: 2},
-                {label: "Fast", value: 3},
-                {label: "Fastest", value: 4},
-            ],
-            currencyOptions: [
-                {label: "USD", value: 0},
-                {label: "AUD", value: 1},
-                {label: "BRL", value: 2},
-                {label: "CAD", value: 3},
-                {label: "CHF", value: 4},
-                {label: "CLP", value: 5},
-                {label: "CNY", value: 6},
-                {label: "DKK", value: 7},
-                {label: "EUR", value: 8},
-                {label: "GBP", value: 9},
-                {label: "HKD", value: 10},
-                {label: "INR", value: 11},
-                {label: "ISK", value: 12},
-                {label: "JPY", value: 13},
-                {label: "KRW", value: 14},
-                {label: "NZD", value: 15},
-                {label: "PLN", value: 16},
-                {label: "RUB", value: 17},
-                {label: "SEK", value: 18},
-                {label: "SGD", value: 19},
-                {label: "THB", value: 20},
-                {label: "TWD", value: 21},
-            ],
-        }
-    },
-    validations: {
-        newTx: {
-            amount: {
-                required,
-                decimal,
-                greater_than_zero
-            },
-            address: {
-                required,
-                isAddress(value) {
-                    if (value === '') return true
+            tx_type_options: [
+                { label: "All", value: "all" },
+                { label: "Incoming", value: "in" },
+                { label: "Outgoing", value: "out" },
+                { label: "Pending", value: "all_pending" },
+                { label: "Miner", value: "miner" },
+                { label: "Service Node", value: "snode" },
+                { label: "Stake", value: "stake" },
+                { label: "Failed", value: "failed" },
+            ]
 
-                    return new Promise(resolve => {
-                        address(value, this.$gateway)
-                            .then(() => resolve(true))
-                            .catch(e => resolve(false))
-                    });
-                }
-            },
-            payment_id: { payment_id }
         }
     },
-    watch: {
-        tx_status: {
-            handler(val, old){
-                if(val.code == old.code) return
-                switch(this.tx_status.code) {
-                    case 0:
-                        this.$q.notify({
-                            type: "positive",
-                            timeout: 1000,
-                            message: this.tx_status.message
-                        })
-                        this.$v.$reset();
-                        this.newTx = {
-                            amount: 0,
-                            address: "",
-                            payment_id: "",
-                            priority: 0,
-                            address_book: {
-                                save: false,
-                                name: "",
-                                description: ""
-                            },
-                            note: ""
-                        }
-                        break;
-                    case -1:
-                        this.$q.notify({
-                            type: "negative",
-                            timeout: 1000,
-                            message: this.tx_status.message
-                        })
-                        break;
-                }
-            },
-            deep: true
-        },
-        $route (to) {
-            if(to.path == "/wallet/send" && to.query.hasOwnProperty("address")) {
-                this.autoFill(to.query)
-            }
-        }
+    computed: mapState({
+        theme: state => state.gateway.app.config.appearance.theme,
+        tx_list: state => state.gateway.wallet.pools.pool_list,
+        unlocked_balance: state => state.gateway.wallet.info.unlocked_balance,
+
+    }),
+
+    components: {
+        TxList,
+        tritonField
     },
-    mounted () {
-        if(this.$route.path == "/wallet/send" && this.$route.query.hasOwnProperty("address")) {
-            this.autoFill(this.$route.query)
-        }
-    },
+
     methods: {
-
-        autoFill: function (info) {
-            this.newTx.address = info.address
-            this.newTx.payment_id = info.payment_id
+        handleClick: function (key, address, maxAmount) {
+            this.oracleKey = key
+            this.oracleAddress = address
+            this.maxAmount = maxAmount
+            this.openedSend = true
         },
-        getAmount: function () {
-            return this.newTx.amount;
-        },
-        // Conversion Function------------------------------------------------------------
-        //FROM WHAT EVER CURRENCY TO XTRI
-        conversionToXtri: function () {
-            //xtri price in sats variable
-            let sats;
-            //btc prices in differnt currencies
-            let currentPrice;
-            let prices=[];
-
-            //getting xtri price in sats from Trade Ogre
-            axios.get(`https://tradeogre.com/api/v1/ticker/BTC-XEQ`).then(res => {
-                console.log(res.data.price);
-                sats = res.data.price;
-
-                //getting btc price in usd
-                axios.get(`https://blockchain.info/ticker`).then(res => {
-                    //btc prices in difffernt gov currencys
-                    prices[0] = res.data.USD["15m"];
-                    prices[1] = res.data.AUD["15m"];
-                    prices[2] = res.data.BRL["15m"];
-                    prices[3] = res.data.CAD["15m"];
-                    prices[4] = res.data.CHF["15m"];
-                    prices[5] = res.data.CLP["15m"];
-                    prices[6] = res.data.CNY["15m"];
-                    prices[7] = res.data.DKK["15m"];
-                    prices[8] = res.data.EUR["15m"];
-                    prices[9] = res.data.GBP["15m"];
-                    prices[10] = res.data.HKD["15m"];
-                    prices[11] = res.data.INR["15m"];
-                    prices[12] = res.data.ISK["15m"];
-                    prices[13] = res.data.JPY["15m"];
-                    prices[14] = res.data.KRW["15m"];
-                    prices[15] = res.data.NZD["15m"];
-                    prices[16] = res.data.PLN["15m"];
-                    prices[17] = res.data.RUB["15m"];
-                    prices[18] = res.data.SEK["15m"];
-                    prices[19] = res.data.SGD["15m"];
-                    prices[20] = res.data.THB["15m"];
-                    prices[21] = res.data.TWD["15m"];
-
-                    currentPrice = prices[this.newTx.currency];
-
-                    //Do conversion with current currency
-                    this.newTx.amount = ((this.newTx.amountInCurrency/currentPrice)/sats).toFixed(4);
-                })
-            });
-
-            return 1;
-        },
-        //FROM XTRI TO WHAT EVER CURRENCY
-        conversionFromXtri: function () {
-            //xtri price in sats variable
-            let sats;
-            //btc prices in differnt currencies
-            let currentPrice;
-            let prices=[];
-
-            //getting xtri price in sats from Trade Ogre
-            axios.get(`https://tradeogre.com/api/v1/ticker/BTC-XEQ`).then(res => {
-                console.log(res.data.price);
-                sats = res.data.price;
-
-                //getting btc price in usd
-                axios.get(`https://blockchain.info/ticker`).then(res => {
-                    //btc prices in difffernt gov currencys
-                    prices[0] = res.data.USD["15m"];
-                    prices[1] = res.data.AUD["15m"];
-                    prices[2] = res.data.BRL["15m"];
-                    prices[3] = res.data.CAD["15m"];
-                    prices[4] = res.data.CHF["15m"];
-                    prices[5] = res.data.CLP["15m"];
-                    prices[6] = res.data.CNY["15m"];
-                    prices[7] = res.data.DKK["15m"];
-                    prices[8] = res.data.EUR["15m"];
-                    prices[9] = res.data.GBP["15m"];
-                    prices[10] = res.data.HKD["15m"];
-                    prices[11] = res.data.INR["15m"];
-                    prices[12] = res.data.ISK["15m"];
-                    prices[13] = res.data.JPY["15m"];
-                    prices[14] = res.data.KRW["15m"];
-                    prices[15] = res.data.NZD["15m"];
-                    prices[16] = res.data.PLN["15m"];
-                    prices[17] = res.data.RUB["15m"];
-                    prices[18] = res.data.SEK["15m"];
-                    prices[19] = res.data.SGD["15m"];
-                    prices[20] = res.data.THB["15m"];
-                    prices[21] = res.data.TWD["15m"];
-
-                    currentPrice = prices[this.newTx.currency];
-
-                    //Do conversion with current currency
-                    this.newTx.amountInCurrency = ((this.newTx.amount*currentPrice)*sats).toFixed(4);
-                })
-            });
-
-            return 1;
-        },
-
         send: function () {
+            this.openedSend = false
             this.$v.newTx.$touch()
 
-            if(this.newTx.amount < 0) {
+            if (this.newTx.amount < 0) {
                 this.$q.notify({
                     type: "negative",
                     timeout: 1000,
                     message: "Amount cannot be negative"
                 })
                 return
-            } else if(this.newTx.amount == 0) {
+            } else if (this.newTx.amount == 0) {
                 this.$q.notify({
                     type: "negative",
                     timeout: 1000,
                     message: "Amount must be greater than zero"
                 })
                 return
-            } else if(this.newTx.amount > this.unlocked_balance / 1e4) {
+            } else if (this.newTx.amount > this.unlocked_balance / 1e4) {
                 this.$q.notify({
                     type: "negative",
                     timeout: 1000,
                     message: "Not enough unlocked balance"
                 })
                 return
-            } else if (this.$v.newTx.amount.$error) {
+            } else if (this.newTx.amount > this.maxAmount / 1e4) {
+                this.$q.notify({
+                    type: "negative",
+                    timeout: 1000,
+                    message: "Amount would cause the staked amount to be greater than the pool max"
+                })
+                return
+            }else if (this.$v.newTx.amount.$error) {
                 this.$q.notify({
                     type: "negative",
                     timeout: 1000,
@@ -472,28 +158,18 @@ export default {
                 return
             }
 
-
-            // if (this.$v.newTx.address.$error) {
-            //     this.$q.notify({
-            //         type: "negative",
-            //         timeout: 1000,
-            //         message: "Address not valid"
-            //     })
-            //     return
-            // }
-
-            if (this.$v.newTx.payment_id.$error) {
+            if (this.$v.newTx.address.$error) {
                 this.$q.notify({
                     type: "negative",
                     timeout: 1000,
-                    message: "Payment id not valid"
+                    message: "Address not valid"
                 })
                 return
             }
 
             this.showPasswordConfirmation({
-                title: "Convert XEQ to wXEQ",
-                noPasswordMessage: "Are you sure you want to send this transaction? You will not be able to swap back from wXEQ until a future update.",
+                title: "Transfer",
+                noPasswordMessage: "Do you want to send the transaction?",
                 ok: {
                     label: "SEND",
                     color: "positive"
@@ -505,33 +181,16 @@ export default {
                     message: "Sending transaction",
                     sending: true
                 })
-                const newTx = objectAssignDeep.noMutate(this.newTx, {password})
+                const newTx = objectAssignDeep.noMutate(this.newTx, { password })
                 this.$gateway.send("wallet", "transfer", newTx)
             }).catch(() => {
             })
         }
     },
-    mixins: [WalletPassword],
-    components: {
-        Identicon,
-        tritonField
-    }
-}
+    mixins: [WalletPassword]
 
+}
 </script>
 
 <style lang="scss">
-.send {
-    text-align: center;
-    .send-btn {
-        width: 200px;
-    }
-}
-
-.confirmBtn {
-    text-align: center;
-    .sendBtn {
-        margin-top: 2rem;
-    }
-}
 </style>
