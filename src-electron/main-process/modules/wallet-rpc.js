@@ -1142,15 +1142,11 @@ export class WalletRPC {
 
     getPools () {
         return new Promise((resolve, reject) => {
-            fetch("http://sanfran.equilibria.network:9231/json_rpc", {
-                body: "{\"jsonrpc\":\"2.0\",\"id\":\"0\",\"method\":\"" + "get_service_nodes" + "\"}",
-                headers: { "Content-Type": "application/json" },
-                method: "POST"
-            })
-                .then(res => res.json()).then((result) => {
+            this.backend.daemon.sendRPC("get_service_nodes")
+                .then((data) => {
                     let wallet = {
                         pools: {
-                            pool_list: result.result.service_node_states
+                            pool_list: data.result.service_node_states
                         }
                     }
                     resolve(wallet)

@@ -1,21 +1,38 @@
 <template>
     <q-page>
-
+        <div style="padding-top: 10px;">
+        
+            <div class="row justify-center">
+            <h5 style="padding-top:5px;margin:1%;text-align: justify;">Nodes Online: {{(tx_list.length.toLocaleString())}}
+             </h5>
+             <h5 style="padding-top:5px;margin:1%;text-align: justify;">APY: {{(((720 / tx_list.length) * 5.4 * 365) / (tx_list[0].staking_requirement/1e4) * 100).toFixed(2).toLocaleString()}}%</h5>
+             <h5 style="padding-top:5px;margin:1%;text-align: justify;">             Daily Reward: {{((720 / tx_list.length) * 5.4).toFixed(2).toLocaleString()}} XEQ 
+            </h5>   
+            <h5 style="padding-top:5px;margin:1%;text-align: justify;">
+                Total Value Locked: ${{(conversionFromXtri((tx_list[0].staking_requirement / 1e4) * tx_list.length).toLocaleString())}}
+            </h5>
+            </div>
+        </div>
         <div class="row q-pt-sm q-mx-md q-mb-sm items-end non-selectable">
-
-            <div style="padding-top: 15px;" class="tx-list">
+            <div style="padding-top: 5px;" class="tx-list">
                 <div class="row justify-center">
                     <div v-for="item in tx_list" :key="item.service_node_pubkey">
-                        <div class="col-2" style="padding: 15px; margin-left: auto; margin-right: auto;">
+                        <div class="col-2" style="padding: 10px; margin-left: auto; margin-right: auto;">
                         <div
-                            style="background-color: #222222; border-radius: 5px;margin:5%; padding: 10px">
-                            <p class="type" style="color:white">
+                            style="background-color: #222222; border-radius: 5px;margin:auto; padding: 50px;padding-top:5px;padding-bottom:5px">
+                            <h6 class="type" style="color:white">
                                 Oracle Node ID: {{ item.service_node_pubkey.substring(0, 4) }}...{{ item.service_node_pubkey.substring(item.service_node_pubkey.length-5, item.service_node_pubkey.length-1) }}
-                            </p>
+                            </h6>
                             <p class="main" style="color:white">
-                                Amount Staked: {{
-                                    (item.total_contributed / 10000).toLocaleString()
-                                }}/{{ (item.staking_requirement / 10000).toLocaleString() }}
+                                Stakers: {{
+                                    (item.contributors.length).toLocaleString()
+                                }} <br/>
+                                Open for stake: {{
+                                    ((item.total_contributed / 10000) - (item.staking_requirement / 10000)).toLocaleString()
+                                }} <br/>
+                                Days Left: {{
+                                    (((item.registration_height + 20160) - info.height) / 720).toFixed(0).toLocaleString()
+                                }}
                             </p>
                             <q-field class="q-pt-sm">
                                 <q-btn style="background-color: #14afde"
@@ -25,7 +42,7 @@
                                        label="Join"/>
                             </q-field>
                         </div>
-                        <div style="padding-top: 10px"/>
+                        <div style="padding-top: 5px"/>
                         </div>
                     </div>
                 </div>
@@ -61,6 +78,7 @@ import { mapState } from "vuex"
 import TxList from "components/pools_list"
 import tritonField from "components/triton_field"
 import WalletPassword from "../../mixins/wallet_password"
+import axios from 'axios'
 
 export default {
     data () {
@@ -72,6 +90,7 @@ export default {
             oracleKey: "",
             oracleAddress: "",
             maxAmount: "",
+            tvl: 0, 
             newTx: {
                 amount: 0,
                 address: "",
@@ -101,7 +120,7 @@ export default {
         theme: state => state.gateway.app.config.appearance.theme,
         tx_list: state => state.gateway.wallet.pools.pool_list,
         unlocked_balance: state => state.gateway.wallet.info.unlocked_balance,
-
+        info: state => state.gateway.wallet.info
     }),
 
     components: {
@@ -110,6 +129,51 @@ export default {
     },
 
     methods: {
+    conversionFromXtri: function (amount) {
+            //xtri price in sats variable
+            let sats;
+            //btc prices in differnt currencies
+            let currentPrice;
+            let prices=[];
+            let dollar_amount = 0;
+            //getting xtri price in sats from Trade Ogre
+            axios.get(`https://tradeogre.com/api/v1/ticker/BTC-XEQ`).then(res => {
+                sats = res.data.price;
+
+                //getting btc price in usd
+                axios.get(`https://blockchain.info/ticker`).then(res => {
+                    //btc prices in difffernt gov currencys
+                    prices[0] = res.data.USD["15m"];
+                    prices[1] = res.data.AUD["15m"];
+                    prices[2] = res.data.BRL["15m"];
+                    prices[3] = res.data.CAD["15m"];
+                    prices[4] = res.data.CHF["15m"];
+                    prices[5] = res.data.CLP["15m"];
+                    prices[6] = res.data.CNY["15m"];
+                    prices[7] = res.data.DKK["15m"];
+                    prices[8] = res.data.EUR["15m"];
+                    prices[9] = res.data.GBP["15m"];
+                    prices[10] = res.data.HKD["15m"];
+                    prices[11] = res.data.INR["15m"];
+                    prices[12] = res.data.ISK["15m"];
+                    prices[13] = res.data.JPY["15m"];
+                    prices[14] = res.data.KRW["15m"];
+                    prices[15] = res.data.NZD["15m"];
+                    prices[16] = res.data.PLN["15m"];
+                    prices[17] = res.data.RUB["15m"];
+                    prices[18] = res.data.SEK["15m"];
+                    prices[19] = res.data.SGD["15m"];
+                    prices[20] = res.data.THB["15m"];
+                    prices[21] = res.data.TWD["15m"];
+                    currentPrice = prices[0];
+
+                    //Do conversion with current currency
+                    this.tvl = ((amount*currentPrice)*sats).toFixed(0);
+                })
+            });
+
+            return this.tvl;
+        },
         handleClick: function (key, address, maxAmount) {
             this.oracleKey = key
             this.oracleAddress = address
@@ -181,7 +245,10 @@ export default {
                     sending: true
                 })
                 const newTx = objectAssignDeep.noMutate(this.newTx, { password })
-                this.$gateway.send("wallet", "transfer", newTx)
+                this.$gateway.send("wallet", "stake", {
+                    ...key,
+                    destination: info.address,
+                })
             }).catch(() => {
             })
         }
