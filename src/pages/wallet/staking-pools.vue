@@ -9,7 +9,7 @@
              <h5 style="padding-top:5px;margin:1%;text-align: justify;">             Daily Reward: {{((720 / tx_list.length) * 5.4).toFixed(2).toLocaleString()}} XEQ 
             </h5>   
             <h5 style="padding-top:5px;margin:1%;text-align: justify;">
-                Total Value Locked: ${{(conversionFromXtri((tx_list[0].staking_requirement / 1e4) * tx_list.length).toLocaleString())}}
+                Total Value Locked: ${{Number(conversionFromXtri((tx_list[0].staking_requirement / 1e4) * tx_list.length)).toLocaleString()}}
             </h5>
             </div>
         </div>
