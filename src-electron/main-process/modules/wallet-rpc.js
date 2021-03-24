@@ -612,7 +612,7 @@ export class WalletRPC {
     heartbeatAction (extended = false) {
         Promise.all([
             this.sendRPC("getheight", {}, 5000),
-            this.sendRPC("getbalance", { account_index: 0 }, 5000)
+            this.sendRPC("getbalance", { account_index: 0 }, 5000),
         ]).then((data) => {
             let wallet = {
                 status: {
@@ -685,30 +685,20 @@ export class WalletRPC {
     }
 
     stake (password, amount, service_node_key, destination) {
+        console.log(amount)
         crypto.pbkdf2(password, this.auth[2], 1000, 64, "sha512", (err, password_hash) => {
             if (err) {
-                this.sendGateway("set_snode_status", {
-                    stake: {
-                        code: -1,
-                        message: "Internal error",
-                        sending: false
-                    }
-                })
+                console.log("password error")
                 return
             }
             if (!this.isValidPasswordHash(password_hash)) {
-                this.sendGateway("set_snode_status", {
-                    stake: {
-                        code: -1,
-                        message: "Invalid password",
-                        sending: false
-                    }
-                })
+                console.log("password error")
                 return
             }
 
-            amount = parseFloat(amount).toFixed(4) * 1e4
 
+            amount = parseFloat(amount).toFixed(4) * 1e4
+            console.log(amount)
             this.sendRPC("stake", {
                 amount,
                 destination,
@@ -725,137 +715,7 @@ export class WalletRPC {
                     })
                     return
                 }
-
-                this.sendGateway("set_snode_status", {
-                    stake: {
-                        code: 0,
-                        message: "Successfully staked",
-                        sending: false
-                    }
-                })
             })
-        })
-    }
-
-    registerSnode (password, register_service_node_str) {
-        crypto.pbkdf2(password, this.auth[2], 1000, 64, "sha512", (err, password_hash) => {
-            if (err) {
-                this.sendGateway("set_snode_status", {
-                    registration: {
-                        code: -1,
-                        message: "Internal error",
-                        sending: false
-                    }
-                })
-                return
-            }
-
-            if (!this.isValidPasswordHash(password_hash)) {
-                this.sendGateway("set_snode_status", {
-                    registration: {
-                        code: -1,
-                        message: "Invalid password",
-                        sending: false
-                    }
-                })
-                return
-            }
-
-            this.sendRPC("register_service_node", {
-                register_service_node_str
-            }).then((data) => {
-                if (data.hasOwnProperty("error")) {
-                    const error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
-                    this.sendGateway("set_snode_status", {
-                        registration: {
-                            code: -1,
-                            message: error,
-                            sending: false
-                        }
-                    })
-                    return
-                }
-
-                this.sendGateway("set_snode_status", {
-                    registration: {
-                        code: 0,
-                        message: "Successfully registered service node",
-                        sending: false
-                    }
-                })
-            })
-        })
-    }
-
-    unlockStake (password, service_node_key, confirmed = false) {
-        // Unlock code 0 means success, 1 means can unlock, -1 means error
-        crypto.pbkdf2(password, this.auth[2], 1000, 64, "sha512", (err, password_hash) => {
-            if (err) {
-                this.sendGateway("set_snode_status", {
-                    unlock: {
-                        code: -1,
-                        message: "Internal error",
-                        sending: false
-                    }
-                })
-                return
-            }
-
-            if (!this.isValidPasswordHash(password_hash)) {
-                this.sendGateway("set_snode_status", {
-                    unlock: {
-                        code: -1,
-                        message: "Invalid password",
-                        sending: false
-                    }
-                })
-                return
-            }
-
-            const sendRPC = (path) => {
-                return this.sendRPC(path, {
-                    service_node_key
-                }).then(data => {
-                    if (data.hasOwnProperty("error")) {
-                        const error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
-                        this.sendGateway("set_snode_status", {
-                            unlock: {
-                                code: -1,
-                                message: error,
-                                sending: false
-                            }
-                        })
-                        return null
-                    }
-                    return data
-                })
-            }
-
-            if (confirmed) {
-                sendRPC("request_stake_unlock").then((data) => {
-                    if (!data) return
-
-                    const unlock = {
-                        code: data.unlocked ? 0 : -1,
-                        message: data.msg,
-                        sending: false
-                    }
-
-                    this.sendGateway("set_snode_status", { unlock })
-                })
-            } else {
-                sendRPC("can_request_stake_unlock").then((data) => {
-                    if (!data) return
-
-                    const unlock = {
-                        code: data.can_unlock ? 1 : -1,
-                        message: data.msg,
-                        sending: false
-                    }
-
-                    this.sendGateway("set_snode_status", { unlock })
-                })
-            }
         })
     }
 

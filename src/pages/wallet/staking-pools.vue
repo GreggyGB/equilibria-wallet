@@ -5,8 +5,8 @@
             <div class="row justify-center">
             <h5 style="padding-top:5px;margin:1%;text-align: justify;">Nodes Online: {{(tx_list.length.toLocaleString())}}
              </h5>
-             <h5 style="padding-top:5px;margin:1%;text-align: justify;">APY: {{(((720 / tx_list.length) * 5.4 * 365) / (tx_list[0].staking_requirement/1e4) * 100).toFixed(2).toLocaleString()}}%</h5>
-             <h5 style="padding-top:5px;margin:1%;text-align: justify;">             Daily Reward: {{((720 / tx_list.length) * 5.4).toFixed(2).toLocaleString()}} XEQ 
+             <h5 style="padding-top:5px;margin:1%;text-align: justify;">APY: {{Number((((720 / tx_list.length) * 5.4 * 365) / (tx_list[0].staking_requirement/1e4) * 100).toFixed(2)).toLocaleString()}}%</h5>
+             <h5 style="padding-top:5px;margin:1%;text-align: justify;">             Daily Reward: {{Number(((720 / tx_list.length) * 5.4).toFixed(2)).toLocaleString()}} XEQ 
             </h5>   
             <h5 style="padding-top:5px;margin:1%;text-align: justify;">
                 Total Value Locked: ${{Number(conversionFromXtri((tx_list[0].staking_requirement / 1e4) * tx_list.length)).toLocaleString()}}
@@ -28,8 +28,11 @@
                                     (item.contributors.length).toLocaleString()
                                 }} <br/>
                                 Open for stake: {{
-                                    ((item.total_contributed / 10000) - (item.staking_requirement / 10000)).toLocaleString()
+                                    ((item.staking_requirement / 10000) - (item.total_contributed / 10000)).toLocaleString()
                                 }} <br/>
+                                Operator Fee : {{
+                                   (((item.portions_for_operator / 18446744073709551612) * 100)).toLocaleString()
+                                }}% <br/>
                                 Days Left: {{
                                     (((item.registration_height + 20160) - info.height) / 720).toFixed(0).toLocaleString()
                                 }}
@@ -53,7 +56,7 @@
                 <p>Max Amount: {{ maxAmount }}</p>
                 <tritonField label="Amount">
                     <q-input
-                        v-model="newTx.amount"
+                        v-model="stake_amount"
                         type="number"
                         min="0"
                         :max="maxAmount"
@@ -65,7 +68,7 @@
                     <q-btn
                         style="background-color: #14afde"
                         class="send-btn"
-                        color="positive" @click="send()" label="Confirm Stake"/>
+                        color="positive" @click="stake()" label="Confirm Stake"/>
                 </div>
             </q-modal>
 
@@ -77,7 +80,7 @@
 import { mapState } from "vuex"
 import TxList from "components/pools_list"
 import tritonField from "components/triton_field"
-import WalletPassword from "../../mixins/wallet_password"
+import WalletPassword from "src/mixins/wallet_password"
 import axios from 'axios'
 
 export default {
@@ -90,6 +93,7 @@ export default {
             oracleKey: "",
             oracleAddress: "",
             maxAmount: "",
+            stake_amount: 0,
             tvl: 0, 
             newTx: {
                 amount: 0,
@@ -180,74 +184,72 @@ export default {
             this.maxAmount = maxAmount
             this.openedSend = true
         },
-        send: function () {
-            this.openedSend = false
-            this.$v.newTx.$touch()
+        stake: function (key, address, amount) {
 
-            if (this.newTx.amount < 0) {
-                this.$q.notify({
-                    type: "negative",
-                    timeout: 1000,
-                    message: "Amount cannot be negative"
-                })
-                return
-            } else if (this.newTx.amount == 0) {
-                this.$q.notify({
-                    type: "negative",
-                    timeout: 1000,
-                    message: "Amount must be greater than zero"
-                })
-                return
-            } else if (this.newTx.amount > this.unlocked_balance / 1e4) {
-                this.$q.notify({
-                    type: "negative",
-                    timeout: 1000,
-                    message: "Not enough unlocked balance"
-                })
-                return
-            } else if (this.newTx.amount > this.maxAmount / 1e4) {
-                this.$q.notify({
-                    type: "negative",
-                    timeout: 1000,
-                    message: "Amount would cause the staked amount to be greater than the pool max"
-                })
-                return
-            } else if (this.$v.newTx.amount.$error) {
-                this.$q.notify({
-                    type: "negative",
-                    timeout: 1000,
-                    message: "Amount not valid"
-                })
-                return
-            }
+            console.log(this.oracleKey);
 
-            if (this.$v.newTx.address.$error) {
-                this.$q.notify({
-                    type: "negative",
-                    timeout: 1000,
-                    message: "Address not valid"
-                })
-                return
-            }
+            // this.$v.service_node.$touch()
 
+            // if (this.$v.service_node.key.$error) {
+            //     this.$q.notify({
+            //         type: "negative",
+            //         timeout: 1000,
+            //         message: "Service node key not valid"
+            //     })
+            //     return
+            // }
+
+            // if (this.$v.service_node.award_address.$error) {
+            //     this.$q.notify({
+            //         type: "negative",
+            //         timeout: 1000,
+            //         message: "Address not valid"
+            //     })
+            //     return
+            // }
+
+            // if(this.service_node.amount < 0) {
+            //     this.$q.notify({
+            //         type: "negative",
+            //         timeout: 1000,
+            //         message: "Amount cannot be negative"
+            //     })
+            //     return
+            // } else if(this.service_node.amount == 0) {
+            //     this.$q.notify({
+            //         type: "negative",
+            //         timeout: 1000,
+            //         message: "Amount must be greater than zero"
+            //     })
+            //     return
+            // } else if(this.service_node.amount > this.unlocked_balance / 1e4) {
+            //     this.$q.notify({
+            //         type: "negative",
+            //         timeout: 1000,
+            //         message: "Not enough unlocked balance"
+            //     })
+            //     return
+            // } else if (this.$v.service_node.amount.$error) {
+            //     this.$q.notify({
+            //         type: "negative",
+            //         timeout: 1000,
+            //         message: "Amount not valid"
+            //     })
+            //     return
+            // }
+            console.log(this.info.address)
             this.showPasswordConfirmation({
-                title: "Transfer",
-                noPasswordMessage: "Do you want to send the transaction?",
+                title: "Stake",
+                noPasswordMessage: "Do you want to stake?",
                 ok: {
-                    label: "SEND",
+                    label: "STAKE",
                     color: "positive"
 
                 },
             }).then(password => {
-                this.$store.commit("gateway/set_tx_status", {
-                    code: 1,
-                    message: "Sending transaction",
-                    sending: true
-                })
-                const newTx = objectAssignDeep.noMutate(this.newTx, { password })
                 this.$gateway.send("wallet", "stake", {
-                    ...key,
-                    destination: info.address,
+                     password: password, amount: this.stake_amount, key: this.oracleKey,
+                    destination: this.info.address,
                 })
             }).catch(() => {
             })

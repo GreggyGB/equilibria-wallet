@@ -73,9 +73,9 @@ export class Backend {
             testnet: {
                 ...daemon,
                 type: "local",
-                p2p_bind_port: 38156,
-                rpc_bind_port: 38157,
-                zmq_rpc_bind_port: 38158
+                p2p_bind_port: 9330,
+                rpc_bind_port: 9331,
+                zmq_rpc_bind_port: 9332
             }
         }
 
