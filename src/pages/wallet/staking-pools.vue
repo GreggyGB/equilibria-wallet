@@ -9,7 +9,7 @@
              <h5 style="padding-top:5px;margin:1%;text-align: justify;">             Daily Reward: {{Number(((720 / tx_list.length) * 5.4).toFixed(2)).toLocaleString()}} XEQ 
             </h5>   
             <h5 style="padding-top:5px;margin:1%;text-align: justify;">
-                Total Value Locked: ${{Number(conversionFromXtri((tx_list[0].staking_requirement / 1e4) * tx_list.length)).toLocaleString()}}
+                Total Value Locked: ${{Number(conversionFromXtri(getTVL())).toLocaleString()}}
             </h5>
             </div>
         </div>
@@ -177,6 +177,14 @@ export default {
             });
 
             return this.tvl;
+        },
+        getTVL: function (){
+            let sum_xeq_staked = 0
+            for(var i = 0; i < this.tx_list.length;i++){
+                sum_xeq_staked += this.tx_list[i].total_contributed
+            }
+
+            return sum_xeq_staked /1e4
         },
         handleClick: function (key, address, maxAmount) {
             this.oracleKey = key
