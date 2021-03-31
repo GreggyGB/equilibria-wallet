@@ -110,6 +110,10 @@ export class Backend {
             {
                 host: "newyork.equilibria.network",
                 port: 9231
+            },
+            {
+                host: "equilibria.fastnode.eu",
+                port: 9231
             }
         ]
 
