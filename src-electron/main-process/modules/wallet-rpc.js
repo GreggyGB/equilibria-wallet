@@ -706,15 +706,22 @@ export class WalletRPC {
             }).then((data) => {
                 if (data.hasOwnProperty("error")) {
                     let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
-                    this.sendGateway("set_snode_status", {
-                        stake: {
-                            code: -1,
-                            message: error,
-                            sending: false
-                        }
+                    this.sendGateway("set_tx_status", {
+                        code: -1,
+                        message: error,
+                        sending: false
                     })
                     return
                 }
+
+                console.log(data)
+
+                this.sendGateway("show_notification", {
+                    type: "positive",
+                    message: "Staked " + (amount / 1e4).toLocaleString() + " XEQ to: " + service_node_key,
+                    timeout: 2000
+                })
+
             })
         })
     }

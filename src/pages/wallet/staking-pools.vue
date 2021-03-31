@@ -1,27 +1,56 @@
 <template>
     <q-page>
-        <div style="padding-top: 10px;">
-        
-            <div class="row justify-center">
-            <h5 style="padding-top:5px;margin:1%;text-align: justify;">Nodes Online: {{(tx_list.length.toLocaleString())}}
+        <div style="padding-bottom: 0px;">
+            <div class="row justify-center" style="margin-bottom:0%;padding-bottom:0px">
+                <h4 style="padding-bottom:0px;margin-bottom:0%;">Network Stats</h4>
+            </div>
+            <div class="row justify-center" style="padding-top:0px;margin-top:0%">
+            <h5 style="padding-top:0px;margin:1%;text-align: justify;">Nodes Online: {{(tx_list.length.toLocaleString())}}
              </h5>
-             <h5 style="padding-top:5px;margin:1%;text-align: justify;">APY: {{Number((((720 / tx_list.length) * 5.4 * 365) / (tx_list[0].staking_requirement/1e4) * 100).toFixed(2)).toLocaleString()}}%</h5>
-             <h5 style="padding-top:5px;margin:1%;text-align: justify;">             Daily Reward: {{Number(((720 / tx_list.length) * 5.4).toFixed(2)).toLocaleString()}} XEQ 
+             <h5 style="padding-top:0px;margin:1%;text-align: justify;">Monthly Yield: {{Number((((720 / tx_list.length) * 5.4 * 30) / (tx_list[0].staking_requirement/1e4) * 100).toFixed(2)).toLocaleString()}}%</h5>
+             <h5 style="padding-top:0px;margin:1%;text-align: justify;">             Daily Reward: {{Number(((720 / tx_list.length) * 5.4).toFixed(2)).toLocaleString()}} XEQ 
             </h5>   
-            <h5 style="padding-top:5px;margin:1%;text-align: justify;">
+            <h5 style="padding-top:0px;margin:1%;text-align: justify;">
                 Total Value Locked: ${{Number(conversionFromXtri(getTVL())).toLocaleString()}}
             </h5>
             </div>
+        </div>
+        <div class="row justify-center" style="margin-bottom:0%;padding-bottom:0px">
+                <h4 style="padding-bottom:0px;margin-bottom:0%;">Oracle Node Pools</h4>
         </div>
         <div class="row q-pt-sm q-mx-md q-mb-sm items-end non-selectable">
             <div style="padding-top: 5px;" class="tx-list">
                 <div class="row justify-center">
                     <div v-for="item in tx_list" :key="item.service_node_pubkey">
-                        <div class="col-2" style="padding: 10px; margin-left: auto; margin-right: auto;">
-                        <div
-                            style="background-color: #222222; border-radius: 5px;margin:auto; padding: 50px;padding-top:5px;padding-bottom:5px">
+                        <div class="col-2" style="padding: 10px; margin-left: auto; ">
+                        <div v-if="isMine(item.contributors)" 
+                            style="  box-shadow: 0 0px 0px 0px rgb(0, 250, 154), 0 0px 0px 0 rgb(0, 250, 154), 0 0px 10px 0 rgb(0, 250, 154);
+
+                            background-color: #222222; border-radius: 5px;margin-right:auto; margin-left:auto;padding: 50px;padding-top:5px;padding-bottom:60px">
                             <h6 class="type" style="color:white">
                                 Oracle Node ID: {{ item.service_node_pubkey.substring(0, 4) }}...{{ item.service_node_pubkey.substring(item.service_node_pubkey.length-5, item.service_node_pubkey.length-1) }}
+                            </h6>
+                            <p class="main" style="color:white">
+                                Total Stakers: {{
+                                    (item.contributors.length).toLocaleString()
+                                }} <br/>
+                                Your Stake (%): {{(myShare(item.contributors) / 1e4).toLocaleString()}} XEQ ({{((myShare(item.contributors) / item.total_contributed) * 100).toFixed().toLocaleString()}}%) </br>
+                                Your Daily Reward: {{((myShare(item.contributors) / item.total_contributed) * ((720 / tx_list.length) * 5.4)).toFixed(4).toLocaleString()}} XEQ </br>
+                                Operator Fee : {{
+                                   (((item.portions_for_operator / 18446744073709551612) * 100)).toLocaleString()
+                                }}% <br/>
+                                Expiration: {{
+                                    (((item.registration_height + 20160) - info.height) / 720).toFixed(0).toLocaleString()
+                                }} days </br>
+                            </p>
+                        </div>
+                        <div v-else="isMine(item.contributors)" 
+                            style="  box-shadow: 0 0px 0px 0px rgb(250, 128, 114), 0 0px 0px 0 rgb(250, 128, 114), 0 0px 10px 0 rgb(250, 128, 114);
+
+                            background-color: #222222; border-radius: 5px;margin:auto; padding: 50px;padding-top:5px;padding-bottom:5px">
+
+                            <h6 class="type" style="color:white">
+                            Oracle Node ID: {{ item.service_node_pubkey.substring(0, 4) }}...{{ item.service_node_pubkey.substring(item.service_node_pubkey.length-5, item.service_node_pubkey.length-1) }}
                             </h6>
                             <p class="main" style="color:white">
                                 Stakers: {{
@@ -35,7 +64,7 @@
                                 }}% <br/>
                                 Days Left: {{
                                     (((item.registration_height + 20160) - info.height) / 720).toFixed(0).toLocaleString()
-                                }}
+                                }} days </br>
                             </p>
                             <q-field class="q-pt-sm">
                                 <q-btn style="background-color: #14afde"
@@ -45,6 +74,8 @@
                                        label="Join"/>
                             </q-field>
                         </div>
+
+
                         <div style="padding-top: 5px"/>
                         </div>
                     </div>
@@ -68,7 +99,7 @@
                     <q-btn
                         style="background-color: #14afde"
                         class="send-btn"
-                        color="positive" @click="stake()" label="Confirm Stake"/>
+                        color="positive" @click="stake(), openedSend = false" label="Confirm Stake"/>
                 </div>
             </q-modal>
 
@@ -82,6 +113,7 @@ import TxList from "components/pools_list"
 import tritonField from "components/triton_field"
 import WalletPassword from "src/mixins/wallet_password"
 import axios from 'axios'
+import VueToggles from 'vue-toggles';
 
 export default {
     data () {
@@ -95,6 +127,10 @@ export default {
             maxAmount: "",
             stake_amount: 0,
             tvl: 0, 
+            stake_transactions: {},
+            keys: [],
+            total_staked_amount: 0,
+            total_xeq_earning_p_d: 0,
             newTx: {
                 amount: 0,
                 address: "",
@@ -131,8 +167,65 @@ export default {
         TxList,
         tritonField
     },
-
+    watch: {
+        stake_status: {
+            handler(val, old){
+                if(val.code == old.code) return
+                switch(this.stake_status.code) {
+                    case 0:
+                        this.$q.notify({
+                            type: "positive",
+                            timeout: 1000,
+                            message: this.stake_status.message
+                        })
+                        this.$v.$reset();
+                        this.service_node = {
+                            key: "",
+                            amount: 0,
+                            award_address: "",
+                        }
+                        break;
+                    case -1:
+                        this.$q.notify({
+                            type: "negative",
+                            timeout: 1000,
+                            message: this.stake_status.message
+                        })
+                        break;
+                }
+            },
+            deep: true
+        },
+    },
     methods: {
+    
+    isFull: function(item) {
+        return item.total_contributed == item.staking_requirement;
+    },
+    myShare: function (contrib) {
+        let sum_of_my_stake = 0;
+        for (let i = 0; i < contrib.length;i++)
+        {
+            if (this.info.address == contrib[i].address) {
+                sum_of_my_stake += contrib[i].amount;
+                // if (this.stake_transactions[key] == undefined) {
+                //     this.stake_transactions[key] = contrib[i].amount;
+                //     this.keys.push_back(key);
+                // }
+            }
+        }
+        return sum_of_my_stake;
+    },
+    isMine: function (contrib) {
+
+        for (let i = 0; i < contrib.length;i++)
+        {
+            if (this.info.address == contrib[i].address)
+                return true;
+        }
+
+        return false;
+    },
     conversionFromXtri: function (amount) {
             //xtri price in sats variable
             let sats;
@@ -193,60 +286,7 @@ export default {
             this.openedSend = true
         },
         stake: function (key, address, amount) {
-
-            console.log(this.oracleKey);
-
-            // this.$v.service_node.$touch()
-
-            // if (this.$v.service_node.key.$error) {
-            //     this.$q.notify({
-            //         type: "negative",
-            //         timeout: 1000,
-            //         message: "Service node key not valid"
-            //     })
-            //     return
-            // }
-
-            // if (this.$v.service_node.award_address.$error) {
-            //     this.$q.notify({
-            //         type: "negative",
-            //         timeout: 1000,
-            //         message: "Address not valid"
-            //     })
-            //     return
-            // }
-
-            // if(this.service_node.amount < 0) {
-            //     this.$q.notify({
-            //         type: "negative",
-            //         timeout: 1000,
-            //         message: "Amount cannot be negative"
-            //     })
-            //     return
-            // } else if(this.service_node.amount == 0) {
-            //     this.$q.notify({
-            //         type: "negative",
-            //         timeout: 1000,
-            //         message: "Amount must be greater than zero"
-            //     })
-            //     return
-            // } else if(this.service_node.amount > this.unlocked_balance / 1e4) {
-            //     this.$q.notify({
-            //         type: "negative",
-            //         timeout: 1000,
-            //         message: "Not enough unlocked balance"
-            //     })
-            //     return
-            // } else if (this.$v.service_node.amount.$error) {
-            //     this.$q.notify({
-            //         type: "negative",
-            //         timeout: 1000,
-            //         message: "Amount not valid"
-            //     })
-            //     return
-            // }
-            console.log(this.info.address)
-            this.showPasswordConfirmation({
+                this.showPasswordConfirmation({
                 title: "Stake",
                 noPasswordMessage: "Do you want to stake?",
                 ok: {
@@ -255,6 +295,13 @@ export default {
 
                 },
             }).then(password => {
+
+                this.$store.commit("gateway/set_tx_status", {
+                    code: 1,
+                    message: "Sending transaction",
+                    sending: true
+                })
+
                 this.$gateway.send("wallet", "stake", {
                      password: password, amount: this.stake_amount, key: this.oracleKey,
                     destination: this.info.address,
