@@ -688,11 +688,19 @@ export class WalletRPC {
         console.log(amount)
         crypto.pbkdf2(password, this.auth[2], 1000, 64, "sha512", (err, password_hash) => {
             if (err) {
-                console.log("password error")
+                this.sendGateway("show_notification", {
+                    type: "negative",
+                    message: "Password Error",
+                    timeout: 2000
+                })                
                 return
             }
             if (!this.isValidPasswordHash(password_hash)) {
-                console.log("password error")
+                this.sendGateway("show_notification", {
+                    type: "negative",
+                    message: "Password Error",
+                    timeout: 2000
+                })
                 return
             }
 
@@ -706,6 +714,11 @@ export class WalletRPC {
             }).then((data) => {
                 if (data.hasOwnProperty("error")) {
                     let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
+                    this.sendGateway("show_notification", {
+                        type: "negative",
+                        message: error,
+                        timeout: 2000
+                    })
                     this.sendGateway("set_tx_status", {
                         code: -1,
                         message: error,
@@ -713,9 +726,6 @@ export class WalletRPC {
                     })
                     return
                 }
-
-                console.log(data)
-
                 this.sendGateway("show_notification", {
                     type: "positive",
                     message: "Staked " + (amount / 1e4).toLocaleString() + " XEQ to: " + service_node_key,

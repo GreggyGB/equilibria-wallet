@@ -66,6 +66,8 @@
                                     (((item.registration_height + 20160) - info.height) / 720).toFixed(0).toLocaleString()
                                 }} days </br>
                             </p>
+
+                            <div v-if="!isFull(item.contributors)">
                             <q-field class="q-pt-sm">
                                 <q-btn style="background-color: #14afde"
                                        class="send-btn"
@@ -73,6 +75,14 @@
                                        @click="handleClick(item.service_node_pubkey, item.operator_address, (item.staking_requirement - item.total_contributed)/10000)"
                                        label="Join"/>
                             </q-field>
+                            </div>
+                            <div v-else="!isFull(item.contributors)">
+                            
+                                <div style="padding-bottom: 75px"/>
+                                </div>
+
+
+                            </div>
                         </div>
 
 
