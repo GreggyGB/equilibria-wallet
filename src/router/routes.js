@@ -102,11 +102,6 @@ export default [
                     import("pages/wallet/send")
             },
             {
-                path: "swap",
-                component: () =>
-                    import("pages/wallet/swap")
-            },
-            {
                 path: "staking-pools",
                 component: () =>
                     import("pages/wallet/staking-pools")
