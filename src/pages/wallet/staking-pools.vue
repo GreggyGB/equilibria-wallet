@@ -67,7 +67,7 @@
                                 }} days </br>
                             </p>
 
-                            <div v-if="!isFull(item.contributors)">
+                            <div v-if="isFull(item)">
                             <q-field class="q-pt-sm">
                                 <q-btn style="background-color: #14afde"
                                        class="send-btn"
@@ -80,7 +80,6 @@
                             
                                 <div style="padding-bottom: 75px"/>
                                 </div>
-
 
                             </div>
                         </div>
@@ -210,7 +209,7 @@ export default {
     methods: {
     
     isFull: function(item) {
-        return item.total_contributed == item.staking_requirement;
+        return item.total_contributed < item.staking_requirement;
     },
     myShare: function (contrib) {
         let sum_of_my_stake = 0;
