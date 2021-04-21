@@ -1,8 +1,8 @@
 {
   "name": "equilibria-wallet-atom",
-  "version": "2.0.4",
-  "daemonVersion": "7.0.1",
-  "description": "Modern GUI interface for Equilibria Currency",
+  "version": "3.0.0",
+  "daemonVersion": "9.0.0",
+  "description": "Modern GUI interface for Equilibria",
   "productName": "equilibria Wallet",
   "cordovaId": "com.equilibria.wallet",
   "author": "equilibria",
@@ -15,8 +15,9 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "bufferutil": "^4.0.1",
+    "coffeescript": "^2.5.1",
     "electron-is-dev": "^1.2.0",
     "electron-window-state": "^5.0.3",
     "fs-extra": "^7.0.1",
@@ -31,6 +32,7 @@
     "utf-8-validate": "^5.0.2",
     "vue-i18n": "^8.22.1",
     "vue-timeago": "^5.1.2",
+    "vue-toggles": "^1.1.0",
     "vuelidate": "^0.7.6"
   },
   "devDependencies": {
