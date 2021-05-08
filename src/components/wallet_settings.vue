@@ -22,6 +22,12 @@
                     </q-item-main>
                 </q-item>
                 <q-item :disabled="!is_ready"
+                    v-close-overlay @click.native="showModal('sweep_all')">
+                    <q-item-main>
+                        <q-item-tile label>Sweep All</q-item-tile>
+                    </q-item-main>
+                </q-item>
+                <q-item :disabled="!is_ready"
                         v-close-overlay @click.native="showModal('key_image')">
                     <q-item-main>
                         <q-item-tile label>Manage Key Images</q-item-tile>
@@ -141,6 +147,27 @@
         </div>
     </q-modal>
 
+    <q-modal minimized v-model="modals.sweep_all.visible">
+        <div class="modal-header">Sweep All</div>
+        <div class="q-ma-lg">
+            <p>Sweeps wallet to consolidate inputs.</p>
+
+            <div class="q-mt-xl text-right">
+                <q-btn
+                    flat class="q-mr-sm"
+                    @click="hideModal('sweep_all')"
+                    label="Close"
+                    color="red"
+                    />
+                <q-btn
+                    color="positive"
+                    @click="sweepAll()"
+                    label="Sweep All"
+                    />
+            </div>
+        </div>
+    </q-modal>
+
     <q-modal class="key-image-modal" minimized v-model="modals.key_image.visible">
         <div class="modal-header">{{modals.key_image.type}} key images</div>
         <div class="q-ma-lg">
@@ -241,6 +268,9 @@ export default {
                 rescan: {
                     visible: false,
                     type: "full",
+                },
+                sweep_all: {
+                    visibile: false
                 },
                 key_image: {
                     visible: false,
@@ -389,6 +419,26 @@ export default {
             } else {
                 this.$gateway.send("wallet", "rescan_spent")
             }
+        },
+        sweepAll () {
+            this.hideModal("sweep_all")
+                this.showPasswordConfirmation({
+                    title: "Sweep All",
+                    message: "Sweeping will consolidate inputs.",
+                    ok: {
+                        label: "Sweep",
+                        color: "positive"
+                    },
+                    cancel: {
+                        flat: true,
+                        label: "CANCEL",
+                        color: "red"
+                    }
+                }).then(password => {
+                    console.log("Hello")
+                    this.$gateway.send("wallet", "sweepAll", {password: password})
+                }).catch(() => {
+                })
         },
         selectKeyImageExportPath () {
             this.$refs.keyImageExportSelect.click()

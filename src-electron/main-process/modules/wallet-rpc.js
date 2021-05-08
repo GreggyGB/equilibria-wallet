@@ -213,6 +213,9 @@ export class WalletRPC {
         case "stake":
             this.stake(params.password, params.amount, params.key, params.destination)
             break
+        case "sweepAll":
+            this.sweepAll(params.password)
+            break;
 
         case "register_service_node":
             this.registerSnode(params.password, params.string)
@@ -706,7 +709,6 @@ export class WalletRPC {
 
 
             amount = parseFloat(amount).toFixed(4) * 1e4
-            console.log(amount)
             this.sendRPC("stake", {
                 amount,
                 destination,
@@ -733,6 +735,67 @@ export class WalletRPC {
                 })
 
             })
+        })
+    }
+
+    sweepAll (password) {
+        crypto.pbkdf2(password, this.auth[2], 1000, 64, "sha512", (err, password_hash) => {
+            if (err) {
+                this.sendGateway("set_tx_status", {
+                    code: -1,
+                    message: "Internal error",
+                    sending: false
+                })
+                return
+            }
+            if (!this.isValidPasswordHash(password_hash)) {
+                this.sendGateway("set_tx_status", {
+                    code: -1,
+                    message: "Invalid password",
+                    sending: false
+                })
+                return
+            }
+
+            // let my_address = data.result.address
+
+            let amount = this.wallet_state.unlocked_balance
+
+            let sweep_all = amount == this.wallet_state.unlocked_balance
+
+            const rpc_endpoint = sweep_all ? "sweep_all" : "transfer_split"
+            const params = {
+                "address": "TvzwezQ3E18j1FQoSiEjMwXsgzAeWcfg92bjMjpeGeVm82Y1pqHuzDV1VoUKnCH6FbcEvfwKkSyBsdXSLCHCA4YU2AemyzDmA",
+                "account_index": 0,
+                "priority": 0,
+                "ring_size": 15 // Always force a ring size of 10 (ringsize = mixin + 1)
+            }
+
+            this.sendRPC(rpc_endpoint, params).then((data) => {
+                if (data.hasOwnProperty("error")) {
+                    let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
+                    this.sendGateway("set_tx_status", {
+                        code: -1,
+                        message: error,
+                        sending: false
+                    })
+                    return
+                }
+
+                this.sendGateway("set_tx_status", {
+                    code: 0,
+                    message: "Sweep All Successfully sent",
+                    sending: false
+                })
+
+                if (data.result) {
+                    const hash_list = data.result.tx_hash_list || []
+                    // Save notes
+                    if (note && note !== "") {
+                        hash_list.forEach(txid => this.saveTxNotes(txid, note))
+                    }
+                }
+             })
         })
     }
 
