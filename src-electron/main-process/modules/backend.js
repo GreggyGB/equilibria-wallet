@@ -60,7 +60,7 @@ export class Backend {
         const daemons = {
             mainnet: {
                 ...daemon,
-                remote_host: "sanfran.equilibria.network",
+                remote_host: "newyork.equilibria.network",
                 remote_port: 9231
             },
             stagenet: {
@@ -109,6 +109,26 @@ export class Backend {
             },
             {
                 host: "newyork.equilibria.network",
+                port: 9231
+            },
+            {
+                host: "au.equilibria.network",
+                port: 9231
+            },
+            {
+                host: "sk.equilibria.network",
+                port: 9231
+            },
+            {
+                host: "br.equilibria.network",
+                port: 9231
+            },
+            {
+                host: "sa.equilibria.network",
+                port: 9231
+            },
+            {
+                host: "me.equilibria.network",
                 port: 9231
             },
             {
