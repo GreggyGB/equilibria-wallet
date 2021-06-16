@@ -757,45 +757,52 @@ export class WalletRPC {
                 return
             }
 
-            // let my_address = data.result.address
 
-            let amount = this.wallet_state.unlocked_balance
-
-            let sweep_all = amount == this.wallet_state.unlocked_balance
-
-            const rpc_endpoint = sweep_all ? "sweep_all" : "transfer_split"
-            const params = {
-                "address": "TvzwezQ3E18j1FQoSiEjMwXsgzAeWcfg92bjMjpeGeVm82Y1pqHuzDV1VoUKnCH6FbcEvfwKkSyBsdXSLCHCA4YU2AemyzDmA",
-                "account_index": 0,
-                "priority": 0,
-                "ring_size": 15 // Always force a ring size of 10 (ringsize = mixin + 1)
-            }
-
-            this.sendRPC(rpc_endpoint, params).then((data) => {
-                if (data.hasOwnProperty("error")) {
-                    let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
-                    this.sendGateway("set_tx_status", {
-                        code: -1,
-                        message: error,
-                        sending: false
-                    })
+            this.sendRPC("get_address", { account_index: 0 }).then((data) => {
+                if (data.hasOwnProperty("error") || !data.hasOwnProperty("result")) {
                     return
                 }
 
-                this.sendGateway("set_tx_status", {
-                    code: 0,
-                    message: "Sweep All Successfully sent",
-                    sending: false
-                })
+                let my_address = data.result.address
 
-                if (data.result) {
-                    const hash_list = data.result.tx_hash_list || []
-                    // Save notes
-                    if (note && note !== "") {
-                        hash_list.forEach(txid => this.saveTxNotes(txid, note))
-                    }
+                let amount = this.wallet_state.unlocked_balance
+
+                let sweep_all = amount == this.wallet_state.unlocked_balance
+
+                const rpc_endpoint = sweep_all ? "sweep_all" : "transfer_split"
+                const params = {
+                    "address": my_address,
+                    "account_index": 0,
+                    "priority": 0,
+                    "ring_size": 15 // Always force a ring size of 10 (ringsize = mixin + 1)
                 }
-             })
+
+                this.sendRPC(rpc_endpoint, params).then((data) => {
+                    if (data.hasOwnProperty("error")) {
+                        let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
+                        this.sendGateway("set_tx_status", {
+                            code: -1,
+                            message: error,
+                            sending: false
+                        })
+                        return
+                    }
+
+                    this.sendGateway("set_tx_status", {
+                        code: 0,
+                        message: "Sweep All Successfully sent",
+                        sending: false
+                    })
+
+                    if (data.result) {
+                        const hash_list = data.result.tx_hash_list || []
+                        // Save notes
+                        if (note && note !== "") {
+                            hash_list.forEach(txid => this.saveTxNotes(txid, note))
+                        }
+                    }
+                })
+            })
         })
     }
 
