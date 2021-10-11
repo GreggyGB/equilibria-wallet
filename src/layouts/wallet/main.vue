@@ -44,6 +44,15 @@
                         align="left"
                     />
                 </router-link>
+                  <router-link to="/wallet/swap">
+                    <q-btn
+                        class="large-btn primary"
+                        label="wXEQ"
+                        size="md"
+                        icon-right="arrow_right_alt"
+                        align="left"
+                    />
+                </router-link>
                 <router-link to="/wallet/staking-pools">
                     <q-btn
                         class="large-btn primary"

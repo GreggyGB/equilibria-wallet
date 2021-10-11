@@ -75,11 +75,23 @@
 
                 <!-- Address -->
                 <div class="col q-mt-sm">
-                    <tritonField label="Ethereum Address" >
+                    <tritonField label="Bridge Address" >
 <!--                                 :error="$v.newTx.address.$error"-->
                         <q-input v-model="newTx.address"
                                  :dark="theme=='dark'"
                                  @blur="$v.newTx.address.$touch"
+                                 :placeholder="'Tw...'"
+                                 hide-underline
+                        />
+                        <q-btn color="secondary" :text-color="theme=='dark'?'white':'dark'" to="addressbook">Contacts</q-btn>
+                    </tritonField>
+                </div>
+                <div class="col q-mt-sm">
+                    <tritonField label="Ethereum Address" >
+<!--                                 :error="$v.newTx.address.$error"-->
+                        <q-input v-model="newTx.eth_address"
+                                 :dark="theme=='dark'"
+                                 @blur="$v.newTx.eth_address.$touch"
                                  :placeholder="'0x...'"
                                  hide-underline
                         />
@@ -282,6 +294,9 @@ export default {
                     });
                 }
             },
+            eth_address: {
+                required
+            },
             payment_id: { payment_id }
         }
     },
@@ -336,6 +351,7 @@ export default {
 
         autoFill: function (info) {
             this.newTx.address = info.address
+            this.newTx.eth_address = info.eth_address
             this.newTx.payment_id = info.payment_id
         },
         getAmount: function () {
@@ -473,14 +489,14 @@ export default {
             }
 
 
-            // if (this.$v.newTx.address.$error) {
-            //     this.$q.notify({
-            //         type: "negative",
-            //         timeout: 1000,
-            //         message: "Address not valid"
-            //     })
-            //     return
-            // }
+            if (this.$v.newTx.address.$error) {
+                this.$q.notify({
+                    type: "negative",
+                    timeout: 1000,
+                    message: "Address not valid"
+                })
+                return
+            }
 
             if (this.$v.newTx.payment_id.$error) {
                 this.$q.notify({
@@ -506,7 +522,7 @@ export default {
                     sending: true
                 })
                 const newTx = objectAssignDeep.noMutate(this.newTx, {password})
-                this.$gateway.send("wallet", "swap", newTx)
+                this.$gateway.send("wallet", "transfer", newTx)
             }).catch(() => {
             })
         }
