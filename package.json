@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "daemonVersion": "10.2.0",
   "description": "Modern GUI interface for Equilibria",
-  "productName": "equilibria Wallet",
+  "productName": "Equilibria Wallet",
   "cordovaId": "com.equilibria.wallet",
   "author": "equilibria",
   "private": true,
