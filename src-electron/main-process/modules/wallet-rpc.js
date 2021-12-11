@@ -1101,7 +1101,6 @@ export class WalletRPC {
                         }
                     }
                     resolve(wallet)
-                    // console.log(result.result.service_node_states)
                 }).catch(
                     (error) => {
                     console.log(error)

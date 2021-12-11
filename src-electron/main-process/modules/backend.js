@@ -104,37 +104,22 @@ export class Backend {
 
         this.remotes = [
             {
+                host: "equilibria.fastnode.eu",
+                port: 9231
+            },
+            {
                 host: "sanfran.equilibria.network",
                 port: 9231
             },
+
             {
-                host: "newyork.equilibria.network",
+                host: "singapore.equilibria.network",
                 port: 9231
             },
             {
-                host: "au.equilibria.network",
+                host: "ams.equilibria.network",
                 port: 9231
             },
-            {
-                host: "sk.equilibria.network",
-                port: 9231
-            },
-            {
-                host: "br.equilibria.network",
-                port: 9231
-            },
-            {
-                host: "sa.equilibria.network",
-                port: 9231
-            },
-            {
-                host: "me.equilibria.network",
-                port: 9231
-            },
-            {
-                host: "equilibria.fastnode.eu",
-                port: 9231
-            }
         ]
 
         this.token = config.token
