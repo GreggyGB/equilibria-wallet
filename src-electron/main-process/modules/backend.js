@@ -108,16 +108,24 @@ export class Backend {
                 port: 9231
             },
             {
-                host: "sanfran.equilibria.network",
+                host: "eu.central.xeq.info",
                 port: 9231
             },
 
             {
-                host: "singapore.equilibria.network",
+                host: "us.west.xeq.info",
+                port: 9231
+            },
+            {
+                host: "us.east.xeq.info",
                 port: 9231
             },
             {
                 host: "ams.equilibria.network",
+                port: 9231
+            },
+            {
+                host: "sanfran.equilibria.network",
                 port: 9231
             },
         ]
