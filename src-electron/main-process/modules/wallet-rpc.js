@@ -846,7 +846,15 @@ export class WalletRPC {
             }
 
             if(memo) {
-                params.memo = memo;
+
+                let memo_field = {
+                    address: "",
+                    amount: ""
+                }
+
+                memo_field.address = memo;
+                memo_field.amount = amount.toString()
+                params.memo = JSON.stringify(memo_field);
             }
 
             this.sendRPC(rpc_endpoint, params).then((data) => {
