@@ -89,9 +89,9 @@
                 <div class="col q-mt-sm">
                     <tritonField label="Ethereum Address" >
 <!--                                 :error="$v.newTx.address.$error"-->
-                        <q-input v-model="newTx.eth_address"
+                        <q-input v-model="newTx.memo"
                                  :dark="theme=='dark'"
-                                 @blur="$v.newTx.eth_address.$touch"
+                                 @blur="$v.newTx.memo.$touch"
                                  :placeholder="'0x...'"
                                  hide-underline
                         />
@@ -294,7 +294,7 @@ export default {
                     });
                 }
             },
-            eth_address: {
+            memo: {
                 required
             },
             payment_id: { payment_id }
@@ -351,7 +351,7 @@ export default {
 
         autoFill: function (info) {
             this.newTx.address = info.address
-            this.newTx.eth_address = info.eth_address
+            this.newTx.memo = info.memo
             this.newTx.payment_id = info.payment_id
         },
         getAmount: function () {

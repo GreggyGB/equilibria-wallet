@@ -226,7 +226,7 @@ export class WalletRPC {
             break
 
         case "transfer":
-            this.transfer(params.password, params.amount, params.address, params.payment_id, params.priority, params.currency, params.note || "", params.address_book, params.eth_address || "")
+            this.transfer(params.password, params.amount, params.address, params.payment_id, params.priority, params.currency, params.note || "", params.address_book, params.memo || "")
             break
 
         case "swap":
@@ -845,8 +845,8 @@ export class WalletRPC {
                 params.payment_id = payment_id
             }
 
-            if(eth_address) {
-                params.memo = eth_address;
+            if(memo) {
+                params.memo = memo;
             }
 
             this.sendRPC(rpc_endpoint, params).then((data) => {
