@@ -50,6 +50,7 @@ export class Daemon {
             hostname: daemon.remote_host,
             port: daemon.remote_port
         }).then(data => {
+            console.log(data)
             if (data.error) return { error: data.error }
             return {
                 net_type: data.result.nettype
@@ -271,13 +272,13 @@ export class Daemon {
         clearInterval(this.heartbeat)
         this.heartbeat = setInterval(() => {
             this.heartbeatAction()
-        }, this.local ? 5 * 1000 : 30 * 1000) // 5 seconds for local daemon, 30 seconds for remote
+        }, this.local ? 5 * 1000 : 60 * 1000) // 5 seconds for local daemon, 30 seconds for remote
         this.heartbeatAction()
 
         clearInterval(this.heartbeat_slow)
         this.heartbeat_slow = setInterval(() => {
             this.heartbeatSlowAction()
-        }, 30 * 1000) // 30 seconds
+        }, 60 * 1000) // 30 seconds
         this.heartbeatSlowAction()
     }
 
@@ -360,6 +361,7 @@ export class Daemon {
                 id: id,
                 method: method
             },
+            timeout: 10000,
             agent: this.agent
         }
         if (Object.keys(params).length !== 0) {
