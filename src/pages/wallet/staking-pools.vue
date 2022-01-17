@@ -35,7 +35,7 @@
                                     (item.contributors.length).toLocaleString()
                                 }} <br/>
                                 Your Stake (%): {{(myShare(item.contributors) / 1e4).toLocaleString()}} XEQ ({{((myShare(item.contributors) / item.total_contributed) * 100).toFixed().toLocaleString()}}%) </br>
-                                Your Daily Reward: {{((myShare(item.contributors) / item.total_contributed) * ((720 / tx_list.length) * 5.4)).toFixed(4).toLocaleString()}} XEQ </br>
+                                Your Daily Reward: {{((myShare(item.contributors) / item.total_contributed) * ((720 / tx_list.length) * 4.5) * ( 1 - ((item.portions_for_operator / 18446744073709551612)))).toFixed(4).toLocaleString()}} XEQ </br>
                                 Operator Fee : {{
                                    (((item.portions_for_operator / 18446744073709551612) * 100)).toLocaleString()
                                 }}% <br/>

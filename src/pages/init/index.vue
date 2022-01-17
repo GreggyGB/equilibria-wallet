@@ -78,10 +78,6 @@
                 </div>
 
             </div>
-
-            <div class="absolute-bottom">
-                {{ version }}
-            </div>
         </div>
     </q-page>
 </template>
