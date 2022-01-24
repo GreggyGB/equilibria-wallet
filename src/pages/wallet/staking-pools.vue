@@ -184,7 +184,7 @@ export default {
                     case 0:
                         this.$q.notify({
                             type: "positive",
-                            timeout: 1000,
+                            timeout: 10000,
                             message: this.stake_status.message
                         })
                         this.$v.$reset();
@@ -197,7 +197,7 @@ export default {
                     case -1:
                         this.$q.notify({
                             type: "negative",
-                            timeout: 1000,
+                            timeout: 10000,
                             message: this.stake_status.message
                         })
                         break;
