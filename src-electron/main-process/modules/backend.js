@@ -80,12 +80,14 @@ export class Backend {
         }
 
         // Default values
+        let port = JSON.parse(fs.readFileSync("port.json", "utf8")).port
+        console.log(port)
         this.defaults = {
             daemons: objectAssignDeep({}, daemons),
             app: {
                 data_dir: this.config_dir,
                 wallet_data_dir: this.wallet_dir,
-                ws_bind_port: 12313,
+                ws_bind_port: port,
                 net_type: "mainnet"
             },
             wallet: {

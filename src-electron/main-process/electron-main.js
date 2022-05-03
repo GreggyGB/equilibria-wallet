@@ -4,6 +4,7 @@ import menuTemplate from "./menu"
 import isDev from "electron-is-dev"
 const portscanner = require("portscanner")
 const windowStateKeeper = require("electron-window-state")
+const fs = require("fs")
 
 /**
  * Set `__statics` path to static files in production;
@@ -102,10 +103,18 @@ function createWindow () {
             // if err, then we may have to use insecure token generation perhaps
             if (err) throw err
 
+            let port = (Math.floor(Math.random() * 6) + 1).toString() + Math.floor(Math.random() * (5 + 1)).toString() + Math.floor(Math.random() * (5 + 1)).toString() + Math.floor(Math.random() * (3 + 1)).toString() + Math.floor(Math.random() * (5 + 1)).toString()
+
             let config = {
-                port: 12313,
+                port: port,
                 token: buffer.toString("hex")
             }
+
+            fs.writeFile("port.json", JSON.stringify({port: port}), err => {
+                if (err) {
+                    console.error(err)
+                }
+            })
 
             portscanner.checkPortStatus(config.port, "127.0.0.1", (error, status) => {
                 if (status == "closed") {
