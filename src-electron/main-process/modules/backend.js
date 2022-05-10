@@ -110,16 +110,16 @@ export class Backend {
                 port: 9231
             },
             {
-                host: "eu.central.xeq.info",
+                host: "xeq.supporters.ml",
                 port: 9231
             },
 
             {
-                host: "us.west.xeq.info",
+                host: "xeq.gntl.uk",
                 port: 9231
             },
             {
-                host: "us.east.xeq.info",
+                host: "singapore.equilibria.network",
                 port: 9231
             },
             {
