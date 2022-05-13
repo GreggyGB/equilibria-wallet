@@ -52,7 +52,8 @@ export default {
             used: [],
             unused: [],
             address_book: []
-        }
+        },
+        isRPCSyncing: false
     },
     tx_status: {
         code: 0,

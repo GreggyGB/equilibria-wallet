@@ -6,7 +6,7 @@ import {dialog} from "electron"
 const WebSocket = require("ws")
 const os = require("os")
 const fs = require("fs-extra")
-const path = require("path")
+const path = require("upath")
 const objectAssignDeep = require("object-assign-deep")
 
 export class Backend {
@@ -503,18 +503,12 @@ export class Backend {
                         })
                         // eslint-disable-next-line
                     }).catch(error => {
+                        this.daemon.killProcess()
+                        this.send("show_notification", { type: "negative", message: error.message, timeout: 3000 })
                         if (this.config_data.daemons[net_type].type == "remote") {
-                            this.send("show_notification", {
-                                type: "negative",
-                                message: "Remote daemon cannot be reached",
-                                timeout: 2000
-                            })
+                            this.send("show_notification", { type: "negative", message: "Remote daemon cannot be reached", timeout: 3000 })
                         } else {
-                            this.send("show_notification", {
-                                type: "negative",
-                                message: "Local daemon internal error",
-                                timeout: 2000
-                            })
+                            this.send("show_notification", { type: "negative", message: error.message, timeout: 3000 })
                         }
                         this.send("set_app_data", {
                             status: {

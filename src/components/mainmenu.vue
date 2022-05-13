@@ -33,7 +33,7 @@
 
             <img class="q-mb-md" src="equilibria.svg" />
 
-            <p class="q-my-sm">Version: ATOM v{{version}}-v{{daemonVersion}}</p>
+            <p class="q-my-sm">Version: v{{version}}-v{{daemonVersion}}</p>
             <p class="q-my-sm">Copyright (c) 2018-2020, Equilibria Project</p>
             <p class="q-my-sm">Copyright (c) 2018-2019, Loki Project</p>
             <p class="q-my-sm">Copyright (c) 2018, Ryo Currency Project</p>
@@ -85,6 +85,8 @@ export default {
     },
     computed: mapState({
         theme: state => state.gateway.app.config.appearance.theme,
+        isRPCSyncing: state => state.gateway.wallet.isRPCSyncing,
+
     }),
     methods: {
         openExternal (url) {
@@ -100,6 +102,10 @@ export default {
             this.$refs.settingsModal.isVisible = true
         },
         switchWallet () {
+            if (this.isRPCSyncing) {
+                this.$gateway.confirmClose("The wallet RPC is currently syncing. If you wish to switch wallets then you must restart the application. You will lose your syncing progress and have to rescan the blockchain again.", true)
+                return
+            }
             this.$q.dialog({
                 title: "Switch wallet",
                 message: "Are you sure you want to close the current wallet?",
