@@ -5,7 +5,7 @@
             <q-list separator link>
                 <q-item v-close-overlay @click.native="switchWallet" v-if="!disableSwitchWallet">
                     <q-item-main>
-                        <q-item-tile label>Switch Wallet</q-item-tile>
+                        <q-item-tile label>Switch Account</q-item-tile>
                     </q-item-main>
                 </q-item>
                 <q-item v-close-overlay @click.native="openSettings">
@@ -107,7 +107,7 @@ export default {
                 return
             }
             this.$q.dialog({
-                title: "Switch wallet",
+                title: "Switch account",
                 message: "Are you sure you want to close the current wallet?",
                 ok: {
                     label: "OK",

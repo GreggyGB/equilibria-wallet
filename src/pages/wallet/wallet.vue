@@ -45,7 +45,7 @@ This is an unused class in triton
                                 <q-item :disabled="!is_ready"
                                         v-close-overlay @click.native="showModal('rescan')">
                                     <q-item-main>
-                                        <q-item-tile label>Rescan Wallet</q-item-tile>
+                                        <q-item-tile label>Rescan Account</q-item-tile>
                                     </q-item-main>
                                 </q-item>
                                 <q-item :disabled="!is_ready"
@@ -57,7 +57,7 @@ This is an unused class in triton
                                 <q-item :disabled="!is_ready"
                                         v-close-overlay @click.native="deleteWallet()">
                                     <q-item-main>
-                                        <q-item-tile label>Delete Wallet</q-item-tile>
+                                        <q-item-tile label>Delete Account</q-item-tile>
                                     </q-item-main>
                                 </q-item>
                             </q-list>
@@ -399,7 +399,7 @@ export default {
             if (!this.is_ready) return
             this.$q.dialog({
                 title: "Show private keys",
-                message: "Enter wallet password to continue.",
+                message: "Enter account password to continue.",
                 prompt: {
                     model: "",
                     type: "password"
@@ -471,7 +471,7 @@ export default {
 
             this.$q.dialog({
                 title: this.modals.key_image.type + " key images",
-                message: "Enter wallet password to continue.",
+                message: "Enter account password to continue.",
                 prompt: {
                     model: "",
                     type: "password"
@@ -532,7 +532,7 @@ export default {
         deleteWallet () {
             this.$q.dialog({
                 title: "Delete wallet",
-                message: "Are you absolutely sure you want to delete your wallet?\nMake sure you have your private keys backed up.\nTHIS PROCESS IS NOT REVERSIBLE!",
+                message: "Are you absolutely sure you want to delete your account?\nMake sure you have your private keys backed up.\nTHIS PROCESS IS NOT REVERSIBLE!",
                 ok: {
                     label: "DELETE",
                     color: "red"
@@ -545,7 +545,7 @@ export default {
             }).then(() => {
                 this.$q.dialog({
                     title: "Delete wallet",
-                    message: "Enter wallet password to continue.",
+                    message: "Enter account password to continue.",
                     prompt: {
                         model: "",
                         type: "password"

@@ -1,20 +1,20 @@
 <template>
 <q-page>
     <div class="q-mx-md">
-        <tritonField class="q-mt-md" label="Wallet name" :error="$v.wallet.name.$error">
+        <tritonField class="q-mt-md" label="Account Name" :error="$v.wallet.name.$error">
             <q-input
                 v-model="wallet.name"
-                placeholder="A name for your wallet"
+                placeholder="A name for your account"
                 @blur="$v.wallet.name.$touch"
                 :dark="theme=='dark'"
                 hide-underline
                 />
         </tritonField>
 
-        <tritonField class="q-mt-md" label="Mnemonic seed" :error="$v.wallet.seed.$error">
+        <tritonField class="q-mt-md" label="Mnemonic Seed" :error="$v.wallet.seed.$error">
             <q-input
                 v-model="wallet.seed"
-                placeholder="25 (or 24) word mnemonic seed"
+                placeholder="25 (or 24) word Mnemonic Seed"
                 type="textarea"
                 @blur="$v.wallet.seed.$touch"
                 :dark="theme=='dark'"
@@ -63,7 +63,7 @@
         <tritonField class="q-mt-md" label="Password">
             <q-input
                 v-model="wallet.password"
-                placeholder="An optional password for the wallet"
+                placeholder="An optional password for the account"
                 type="password"
                 :dark="theme=='dark'"
                 hide-underline
@@ -80,7 +80,7 @@
         </tritonField>
 
         <q-field>
-            <q-btn color="primary" @click="restore_wallet" label="Restore wallet" />
+            <q-btn color="primary" @click="restore_wallet" label="Restore Account" />
         </q-field>
 
     </div>

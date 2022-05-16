@@ -6,7 +6,7 @@
                 v-model="wallet.name"
                 @blur="$v.wallet.name.$touch"
                 :dark="theme=='dark'"
-                placeholder="A name for your wallet"
+                placeholder="A name for your account"
                 hide-underline
             />
         </tritonField>
@@ -25,7 +25,7 @@
                 v-model="wallet.password"
                 type="password"
                 :dark="theme=='dark'"
-                placeholder="An optional password for the wallet"
+                placeholder="An optional password for the account"
                 hide-underline
             />
         </tritonField>
@@ -40,7 +40,7 @@
         </tritonField>
 
         <q-field>
-            <q-btn color="primary" @click="create" label="Create wallet" />
+            <q-btn color="primary" @click="create" label="Create Account" />
         </q-field>
 
     </div>
@@ -120,7 +120,7 @@ export default {
                 this.$q.notify({
                     type: "negative",
                     timeout: 1000,
-                    message: "Enter a wallet name"
+                    message: "Enter an account name"
                 })
                 return
             }
@@ -138,7 +138,7 @@ export default {
             if (!this.wallet.password) {
                 passwordPromise = this.$q.dialog({
                     title: "No password set",
-                    message: "Are you sure you want to create a wallet with no password?",
+                    message: "Are you sure you want to create an account with no password?",
                     ok: {
                         label: "YES",
                         color: "positive"

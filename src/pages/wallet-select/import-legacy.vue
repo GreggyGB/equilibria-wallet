@@ -14,7 +14,7 @@
         <q-field class="q-mt-none">
             <q-input
                 v-model="wallet.name"
-                float-label="New wallet name"
+                float-label="New account name"
                 @blur="$v.wallet.name.$touch"
                 :error="$v.wallet.name.$error"
                 :dark="theme=='dark'"
@@ -24,7 +24,7 @@
         <q-field>
             <div class="row gutter-sm">
                 <div class="col-12">
-                    <q-input v-model="wallet_path" stack-label="Wallet file" disable :dark="theme=='dark'" />
+                    <q-input v-model="wallet_path" stack-label="Account File" disable :dark="theme=='dark'" />
                 </div>
             </div>
         </q-field>
@@ -38,7 +38,7 @@
         </q-field>
 
         <q-field>
-            <q-btn color="primary" @click="import_wallet" label="Import wallet" />
+            <q-btn color="primary" @click="import_wallet" label="Import Account" />
         </q-field>
 
     </div>
@@ -106,7 +106,7 @@ export default {
                 this.$q.notify({
                     type: "negative",
                     timeout: 1000,
-                    message: "Enter a wallet name"
+                    message: "Enter an account name"
                 })
                 return
             }

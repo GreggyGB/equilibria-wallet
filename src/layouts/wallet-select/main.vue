@@ -50,19 +50,19 @@ export default {
         page_title () {
             switch (this.$route.name) {
             case "wallet-create":
-                return "Create new wallet"
+                return "Create new account"
             case "wallet-restore":
-                return "Restore wallet from seed"
+                return "Restore account from seed"
             case "wallet-import":
-                return "Import wallet from file"
+                return "Import account from file"
             case "wallet-import-view-only":
-                return "Restore view-only wallet"
+                return "Restore view-only account"
             case "wallet-import-legacy":
-                return "Import wallet from legacy gui"
+                return "Import account from legacy gui"
             case "wallet-import-old-gui":
-                return "Import wallets from old GUI"
+                return "Import accounts from old GUI"
             case "wallet-created":
-                return "Wallet created/restored"
+                return "Account created/restored"
 
             default:
             case "wallet-select":

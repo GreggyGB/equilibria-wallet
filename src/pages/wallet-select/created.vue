@@ -80,7 +80,7 @@
         </template>
     </q-collapsible>
 
-    <q-btn class="q-mt-lg" color="primary" @click="open" label="Open wallet" />
+    <q-btn class="q-mt-lg" color="primary" @click="open" label="Open Account" />
 
 </q-page>
 </template>

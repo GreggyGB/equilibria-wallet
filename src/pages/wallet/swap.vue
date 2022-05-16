@@ -3,7 +3,7 @@
         <template v-if="view_only">
             <div class="q-pa-md">
 
-                View-only mode. Please load full wallet in order to send coins.
+                View-only mode. Please load full account in order to send coins.
 
             </div>
         </template>

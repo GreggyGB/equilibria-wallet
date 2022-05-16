@@ -2,24 +2,24 @@
 <q-page>
     <div class="q-mx-md import-wallet">
 
-        <tritonField label="New wallet name" :error="$v.wallet.name.$error">
+        <tritonField label="New account name" :error="$v.wallet.name.$error">
             <q-input
                 v-model="wallet.name"
-                placeholder="A name for your wallet"
+                placeholder="A name for your account"
                 @blur="$v.wallet.name.$touch"
                 :dark="theme=='dark'"
                 hide-underline
                 />
         </tritonField>
 
-        <tritonField label="Wallet file" disable-hover>
+        <tritonField label="Account file" disable-hover>
             <q-input v-model="wallet.path" placeholder="Please select a file" disable :dark="theme=='dark'" hide-underline/>
             <input type="file" id="walletPath" v-on:change="setWalletPath" ref="fileInput" hidden />
-            <q-btn color="secondary" v-on:click="selectFile" :text-color="theme=='dark'?'white':'dark'">Select wallet file</q-btn>
+            <q-btn color="secondary" v-on:click="selectFile" :text-color="theme=='dark'?'white':'dark'">Select account file</q-btn>
         </tritonField>
 
         <tritonField label="Password">
-            <q-input v-model="wallet.password" placeholder="An optional password for the wallet" type="password" :dark="theme=='dark'" hide-underline />
+            <q-input v-model="wallet.password" placeholder="An optional password for the account" type="password" :dark="theme=='dark'" hide-underline />
         </tritonField>
 
         <tritonField label="Confirm Password">
@@ -27,7 +27,7 @@
         </tritonField>
 
         <q-field>
-            <q-btn color="primary" @click="import_wallet" label="Import wallet" />
+            <q-btn color="primary" @click="import_wallet" label="Import Account" />
         </q-field>
 
     </div>
@@ -97,7 +97,7 @@ export default {
                 this.$q.notify({
                     type: "negative",
                     timeout: 1000,
-                    message: "Enter a wallet name"
+                    message: "Enter an account name"
                 })
                 return
             }

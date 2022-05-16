@@ -16,7 +16,7 @@
         </q-list>
 
          <q-field>
-            <q-btn color="primary" @click="import_wallets" label="Import wallets" :disable="selectedWallets.length === 0"/>
+            <q-btn color="primary" @click="import_wallets" label="Import Accounts" :disable="selectedWallets.length === 0"/>
         </q-field>
     </div>
 </q-page>
@@ -76,7 +76,7 @@ export default {
                             this.$q.notify({
                                 type: "negative",
                                 timeout: 3000,
-                                message: `Failed to import wallet: ${wallet}`
+                                message: `Failed to import account: ${wallet}`
                             })
                         })
                     }

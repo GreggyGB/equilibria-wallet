@@ -18,7 +18,7 @@
                 <q-item :disabled="!is_ready"
                         v-close-overlay @click.native="showModal('rescan')">
                     <q-item-main>
-                        <q-item-tile label>Rescan Wallet</q-item-tile>
+                        <q-item-tile label>Rescan Account</q-item-tile>
                     </q-item-main>
                 </q-item>
                 <q-item :disabled="!is_ready"
@@ -36,7 +36,7 @@
                 <q-item :disabled="!is_ready"
                         v-close-overlay @click.native="deleteWallet()">
                     <q-item-main>
-                        <q-item-tile label>Delete Wallet</q-item-tile>
+                        <q-item-tile label>Delete Account</q-item-tile>
                     </q-item-main>
                 </q-item>
             </q-list>
@@ -120,7 +120,7 @@
 
 
     <q-modal minimized v-model="modals.rescan.visible">
-        <div class="modal-header">Rescan wallet</div>
+        <div class="modal-header">Rescan Account</div>
         <div class="q-ma-lg">
             <p>Select full rescan or rescan of spent outputs only.</p>
 

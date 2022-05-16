@@ -4,7 +4,7 @@
         <q-field class="q-mt-none">
             <q-input
                 v-model="wallet.name"
-                float-label="Wallet name"
+                float-label="Account name"
                 @blur="$v.wallet.name.$touch"
                 :error="$v.wallet.name.$error"
                 :dark="theme=='dark'"
@@ -14,7 +14,7 @@
         <q-field>
             <q-input
                 v-model="wallet.address"
-                float-label="Wallet address"
+                float-label="Account address"
                 @blur="$v.wallet.address.$touch"
                 :error="$v.wallet.address.$error"
                 :dark="theme=='dark'"
@@ -80,7 +80,7 @@
         </q-field>
 
         <q-field>
-            <q-btn color="primary" @click="restore_view_wallet" label="Restore view-only wallet" />
+            <q-btn color="primary" @click="restore_view_wallet" label="Restore view-only account" />
         </q-field>
 
     </div>
@@ -161,7 +161,7 @@ export default {
                 this.$q.notify({
                     type: "negative",
                     timeout: 1000,
-                    message: "Enter a wallet name"
+                    message: "Enter an account name"
                 })
                 return
             }
