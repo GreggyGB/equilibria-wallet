@@ -1,18 +1,18 @@
 <template>
 <div class="column wallet-info">
-    <div class="row justify-between items-center wallet-header triton-green">
-        <div class="title">{{ info.name }}</div>
-        <WalletSettings />
-    </div>
+    <div style="border-bottom: 1px solid white;"/>
     <div class="wallet-content">
         <div class="row justify-center">
             <div class="funds column items-center">
                 <div class="balance">
-                    <div class="text"><span>Balance</span></div>
-                    <div class="value"><span><Formattriton :amount="info.balance" /></span></div>
+                    <div v-if="price != 0" class="value">$<span><Formattriton :amount="info.balance * price" /></span></div>
+                    <div v-else class="value"><span><Formattriton :amount="info.balance" /> XEQ</span></div>
                 </div>
-                <div class="row unlocked">
-                    <span>Unlocked: <Formattriton :amount="info.unlocked_balance" /></span>
+                <div v-if="price != 0" class="row unlocked">
+                    <span><Formattriton :amount="info.balance" /> XEQ</span>
+                </div>
+                <div v-if="info.balance != info.unlocked_balance" class="row unlocked">
+                    <span>Unlocked: <Formattriton :amount="info.unlocked_balance" /> XEQ</span>
                 </div>
             </div>
         </div>
@@ -31,6 +31,20 @@ export default {
         theme: state => state.gateway.app.config.appearance.theme,
         info: state => state.gateway.wallet.info,
     }),
+    data() {
+        return {
+            price: 0
+        }
+    },
+    mounted() {
+        fetch("https://api.coingecko.com/api/v3/coins/triton?tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false\n")
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.market_data.current_price.usd)
+                this.price = data.market_data.current_price.usd
+                this.$forceUpdate()
+            });
+    },
     methods: {
         copyAddress () {
             this.$refs.copy.$el.blur()

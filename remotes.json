@@ -1,0 +1,34 @@
+[
+    {
+        "host": "equilibria.fastnode.eu",
+        "port": 9231
+    },
+    {
+        "host": "xeq.supporters.ml",
+        "port": 9231
+    },
+    {
+        "host": "xeq.gntl.uk",
+        "port": 9231
+    },
+    {
+        "host": "singapore.equilibria.network",
+        "port": 9231
+    },
+    {
+        "host": "ams.equilibria.network",
+        "port": 9231
+    },
+    {
+        "host": "sanfran.equilibria.network",
+        "port": 9231
+    },
+    {
+        "host": "india.equilibria.network",
+        "port": 9231
+    },
+    {
+        "host": "newyork.equilibria.network",
+        "port": 9231
+    }
+]

@@ -51,7 +51,6 @@ export class Daemon {
             hostname: daemon.remote_host,
             port: daemon.remote_port
         }).then(data => {
-            console.log(data)
             if (data.error) return { error: data.error }
             return {
                 net_type: data.result.nettype
@@ -365,13 +364,17 @@ export class Daemon {
     sendRPC (method, params = {}, options = {}) {
         let id = this.id++
 
-        console.log("Send RPC")
         const protocol = options.protocol || this.protocol
         const hostname = options.hostname || this.hostname
         const port = options.port || this.port
 
+        let uri = `${protocol}${hostname}:${port}/json_rpc`
+        if (method == "get_staker") {
+            uri = "http://singapore.equilibria.network:9231/json_rpc"
+        }
+
         let requestOptions = {
-            uri: `${protocol}${hostname}:${port}/json_rpc`,
+            uri: uri,
             method: "POST",
             json: {
                 jsonrpc: "2.0",

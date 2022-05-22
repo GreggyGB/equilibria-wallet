@@ -3,6 +3,7 @@ import {WalletRPC} from "./wallet-rpc"
 import {SCEE} from "./SCEE-Node"
 import {dialog} from "electron"
 
+let fetch = require("isomorphic-unfetch")
 const WebSocket = require("ws")
 const os = require("os")
 const fs = require("fs-extra")
@@ -81,7 +82,6 @@ export class Backend {
 
         // Default values
         let port = JSON.parse(fs.readFileSync("port.json", "utf8")).port
-        console.log(port)
         this.defaults = {
             daemons: objectAssignDeep({}, daemons),
             app: {
@@ -104,33 +104,49 @@ export class Backend {
             }
         }
 
-        this.remotes = [
-            {
-                host: "equilibria.fastnode.eu",
-                port: 9231
-            },
-            {
-                host: "xeq.supporters.ml",
-                port: 9231
-            },
+        let remotes;
+        try {
+            remotes = fs.readFileSync("remotes.json", "utf8")
+        } catch {
+            remotes = JSON.stringify([
+                {
+                    "host": "equilibria.fastnode.eu",
+                    "port": 9231
+                },
+                {
+                    "host": "xeq.supporters.ml",
+                    "port": 9231
+                },
+                {
+                    "host": "xeq.gntl.uk",
+                    "port": 9231
+                },
+                {
+                    "host": "singapore.equilibria.network",
+                    "port": 9231
+                },
+                {
+                    "host": "ams.equilibria.network",
+                    "port": 9231
+                },
+                {
+                    "host": "sanfran.equilibria.network",
+                    "port": 9231
+                },
+                {
+                    "host": "india.equilibria.network",
+                    "port": 9231
+                },
+                {
+                    "host": "newyork.equilibria.network",
+                    "port": 9231
+                }
+            ], null, 4)
+            fs.writeFile("remotes.json", remotes, "utf8", () => {
 
-            {
-                host: "xeq.gntl.uk",
-                port: 9231
-            },
-            {
-                host: "singapore.equilibria.network",
-                port: 9231
-            },
-            {
-                host: "ams.equilibria.network",
-                port: 9231
-            },
-            {
-                host: "sanfran.equilibria.network",
-                port: 9231
-            },
-        ]
+            })
+        }
+        this.remotes = JSON.parse(remotes)
 
         this.token = config.token
 
@@ -200,6 +216,20 @@ export class Backend {
             case "save_config":
                 // check if config has changed
                 let config_changed = false
+                console.log(params.daemons.mainnet)
+                if (params.daemons.mainnet.remote_host) {
+                    try {
+                        this.remotes.push({
+                            "host": params.daemons.mainnet.remote_host,
+                            "port": params.daemons.mainnet.remote_port
+                        },)
+                        fs.writeFile("remotes.json", JSON.stringify(this.remotes, null, 4), "utf8", () => {
+
+                        })
+                    } catch {
+                    }
+
+                }
                 Object.keys(this.config_data).map(i => {
                     if (i == "appearance") return
                     Object.keys(this.config_data[i]).map(j => {
@@ -291,7 +321,7 @@ export class Backend {
             defaults: this.defaults
         })
 
-        fs.readFile(this.config_file, "utf8", (err, data) => {
+        fs.readFile(this.config_file, "utf8", async (err, data) => {
             if (err) {
                 this.send("set_app_data", {
                     status: {
@@ -312,6 +342,42 @@ export class Backend {
                 }
                 this.config_data[key] = Object.assign(this.config_data[key], disk_config_data[key])
             })
+
+            let port = ""
+            let host = ""
+            let fastest_time = 1000000
+            for (const i in this.remotes) {
+                let options = {
+                    method: "POST",
+                    json: {
+                        jsonrpc: "2.0",
+                        id: "0",
+                        method: "get_info"
+                    },
+                }
+                let start = new Date().getTime()
+                try {
+                    await fetch("http://" + this.remotes[i].host + ":" + this.remotes[i].port + "/json_rpc", options)
+                        .then(() => {
+                            console.log("http://" + this.remotes[i].host + ":" + this.remotes[i].port + "/json_rpc")
+                            let end = new Date().getTime() - start
+                            if (end < fastest_time) {
+                                port = this.remotes[i].port
+                                host = this.remotes[i].host
+                                fastest_time = end
+                                console.log("http://" + this.remotes[i].host + ":" + this.remotes[i].port, fastest_time)
+                            }
+                        })
+                } catch {
+                    console.log("http://" + this.remotes[i].host + ":" + this.remotes[i].port + "/json_rpc", "is down")
+                }
+            }
+
+            if (port != "") {
+                this.config_data.daemons.mainnet.remote_host = host
+                this.config_data.daemons.mainnet.remote_port = port
+            }
+
 
             // here we may want to check if config data is valid, if not also send code -1
             // i.e. check ports are integers and > 1024, check that data dir path exists, etc
@@ -504,11 +570,15 @@ export class Backend {
                         // eslint-disable-next-line
                     }).catch(error => {
                         this.daemon.killProcess()
-                        this.send("show_notification", { type: "negative", message: error.message, timeout: 3000 })
+                        this.send("show_notification", {type: "negative", message: error.message, timeout: 3000})
                         if (this.config_data.daemons[net_type].type == "remote") {
-                            this.send("show_notification", { type: "negative", message: "Remote daemon cannot be reached", timeout: 3000 })
+                            this.send("show_notification", {
+                                type: "negative",
+                                message: "Remote daemon cannot be reached",
+                                timeout: 3000
+                            })
                         } else {
-                            this.send("show_notification", { type: "negative", message: error.message, timeout: 3000 })
+                            this.send("show_notification", {type: "negative", message: error.message, timeout: 3000})
                         }
                         this.send("set_app_data", {
                             status: {

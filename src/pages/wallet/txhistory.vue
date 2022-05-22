@@ -3,14 +3,23 @@
 
     <div class="row q-pt-sm q-mx-md q-mb-sm items-end non-selectable">
 
-        <div class="col-5">
-            Transactions
-        </div>
 
-        <tritonField class="col-5 q-px-sm" label="Filter by txid">
+<!--            <tritonField class="col-3 q-px-sm " label="Balances">-->
+<!--                <div style="  display: grid;grid-template-columns: 1fr 2fr">-->
+<!--                    <p style="text-align: center; margin-top: auto">-->
+<!--                        $100-->
+<!--                    </p>-->
+<!--                    <p style="text-align: right; margin-top: auto">-->
+<!--                        350 XEQ-->
+<!--                    </p>-->
+<!--                </div>-->
+<!--            </tritonField>-->
+
+
+        <tritonField class="col-10 " label="Filter by txid">
             <q-input v-model="tx_txid"
                      :dark="theme=='dark'"
-                     placeholder="Enter an ID"
+                     placeholder="TXID"
                      hide-underline
                      />
         </tritonField>
@@ -23,6 +32,12 @@
                       />
         </tritonField>
 
+    </div>
+    <div class="row q-pt-sm q-mx-md q-mb-sm items-end non-selectable">
+
+    <div class="col-1" style="margin-top: 25px">
+        Transactions
+    </div>
     </div>
     <TxList :type="tx_type" :txid="tx_txid" />
 </q-page>

@@ -29,5 +29,11 @@ cd equilibria-wallet
 cp path_to_equilibria_binaries/daemon bin/
 cp path_to_equilibria_binaries/equilibria-wallet-rpc bin/
 npm install
+
+//build
 quasar build -m electron -t mat
+
+//dev
+quasar dev -m electron -t mat
+
 ```

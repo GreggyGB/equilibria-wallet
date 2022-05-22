@@ -42,6 +42,7 @@ export const resetWalletStatus = (state) => {
 }
 
 export const resetPendingConfig = (state) => {
+    console.log(state)
     state.commit("set_app_data", {
 
         pending_config: state.state.app.config

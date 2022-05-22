@@ -7,7 +7,6 @@ const os = require("os")
 const fs = require("fs-extra")
 const path = require("upath")
 const crypto = require("crypto")
-let fetch = require("isomorphic-unfetch")
 const portscanner = require("portscanner")
 
 export class WalletRPC {
@@ -50,7 +49,7 @@ export class WalletRPC {
                 height: (match) => match[2]
             }
         ]
-        
+
         this.agent = new http.Agent({ keepAlive: true, maxSockets: 1 })
         this.queue = new queue(1, Infinity)
     }
@@ -150,10 +149,10 @@ export class WalletRPC {
                       args,
                       options
                     );
-      
+
                     this.walletRPCProcess.stdout.on("data", data => {
                       process.stdout.write(`Wallet: ${data}`);
-      
+
                       let lines = data.toString().split("\n");
                       let match,
                         height = null;
@@ -168,13 +167,13 @@ export class WalletRPC {
                           }
                         }
                       }
-      
+
                       // Keep track on wether a wallet is syncing or not
                       this.sendGateway("set_wallet_data", {
                         isRPCSyncing
                       });
                       this.isRPCSyncing = isRPCSyncing;
-      
+
                       if (height && Date.now() - this.last_height_send_time > 1000) {
                         this.last_height_send_time = Date.now();
                         this.sendGateway("set_wallet_data", {
@@ -195,7 +194,7 @@ export class WalletRPC {
                         reject(new Error("Failed to start wallet RPC"));
                       }
                     });
-      
+
                     // To let caller know when the wallet is ready
                     let intrvl = setInterval(() => {
                       this.sendRPC("get_languages").then(data => {
@@ -628,6 +627,7 @@ export class WalletRPC {
             password
         }).then((data) => {
             if (data.hasOwnProperty("error")) {
+                console.log("ERROR OPEN")
                 this.sendGateway("set_wallet_error", { status: data.error })
                 return
             }
@@ -696,6 +696,9 @@ export class WalletRPC {
                 pools: {
                     pool_list: []
                 },
+                staker: {
+
+                },
                 address_list: {
                     primary: [],
                     used: [],
@@ -743,7 +746,8 @@ export class WalletRPC {
                     let actions = [
                         this.getTransactions(),
                         this.getAddressList(),
-                        this.getPools()
+                        this.getPools(),
+                        // this.getStake(wallet.info.address)
                     ]
 
                     if (true || extended) {
@@ -780,7 +784,7 @@ export class WalletRPC {
                     type: "negative",
                     message: "Password Error",
                     timeout: 2000
-                })                
+                })
                 return
             }
             if (!this.isValidPasswordHash(password_hash)) {
@@ -1199,6 +1203,28 @@ export class WalletRPC {
                     console.log(error)
                 }
                 )
+        })
+    }
+
+    getStake(address) {
+        return new Promise((resolve, reject) => {
+            // console.log(address)
+            this.backend.daemon.sendRPC("get_staker", {
+                "address": address
+            })
+                .then((data) => {
+                    console.log(data)
+                    let wallet = {
+                        staker: {
+                            stake: data.result
+                        }
+                    }
+                    resolve(wallet)
+                }).catch(
+                (error) => {
+                    console.log(error)
+                }
+            )
         })
     }
 

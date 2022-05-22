@@ -8,7 +8,7 @@
     <template v-else>
         <q-infinite-scroll :handler="loadMore" ref="scroller">
             <q-list link no-border :dark="theme=='dark'" class="triton-list tx-list">
-                <q-item class="triton-list-item transaction" v-for="(tx, index) in tx_list_paged" :key="tx.txid"
+                <q-item class="triton-list-item transaction" v-for="(tx, index) in tx_list_paged.slice(0, this.amount)" :key="tx.txid"
                         @click.native="details(tx)" :class="'tx-'+tx.type">
                     <q-item-side class="type">
                         <div>{{ tx.type | typeToString }}</div>
@@ -49,6 +49,13 @@
                 <q-spinner-dots slot="message" :size="40"></q-spinner-dots>
             </q-list>
         </q-infinite-scroll>
+        <div v-if="tx_list_paged.length > 10" style="margin-left: auto; width: 150px; margin-right: auto">
+            <q-field class="q-pt-sm" >
+                <q-btn style="margin-left: auto; width: 150px; margin-right: auto"
+                    class="send-btn"
+                    color="positive" @click="addmore()" label="More" />
+            </q-field>
+        </div>
     </template>
 
     <TxDetails ref="txDetails" />
@@ -92,20 +99,21 @@ export default {
             type: Number,
             required: false,
             default: -1
-        },
+        }
     },
     data () {
         return {
             page: 0,
             tx_list_filtered: [],
-            tx_list_paged: []
+            tx_list_paged: [],
+            amount: 25
         }
     },
     computed: mapState({
         theme: state => state.gateway.app.config.appearance.theme,
         current_height: state => state.gateway.daemon.info.height,
         wallet_height: state => state.gateway.wallet.info.height,
-        tx_list: state => state.gateway.wallet.transactions.tx_list,
+        tx_list: state => state.gateway.wallet.transactions.tx_list
     }),
     created () {
         this.filterTxList()
@@ -113,16 +121,16 @@ export default {
     },
     watch: {
         wallet_height: {
-            handler(val, old){
-                if(val == old) return
+            handler (val, old) {
+                if (val == old) return
                 this.filterTxList()
                 this.pageTxList()
             }
         },
         tx_list: {
-            handler(val, old ) {
+            handler (val, old) {
                 // Check if anything changed in the tx list
-                if(val.length == old.length) {
+                if (val.length == old.length) {
                     const changed = val.filter((v, i) => v.note !== old[i].note)
                     if (changed.length === 0) return
                 }
@@ -131,9 +139,9 @@ export default {
             }
         },
         type: {
-            handler(val, old){
-                if(val == old) return
-                if(this.$refs.scroller) {
+            handler (val, old) {
+                if (val == old) return
+                if (this.$refs.scroller) {
                     this.$refs.scroller.stop()
                     this.page = 0
                     this.$refs.scroller.reset()
@@ -144,9 +152,9 @@ export default {
             }
         },
         txid: {
-            handler(val, old){
-                if(val == old) return
-                if(this.$refs.scroller) {
+            handler (val, old) {
+                if (val == old) return
+                if (this.$refs.scroller) {
                     this.$refs.scroller.stop()
                     this.page = 0
                     this.$refs.scroller.reset()
@@ -155,32 +163,35 @@ export default {
                 this.filterTxList()
                 this.pageTxList()
             }
-        },
+        }
     },
     filters: {
         typeToString: function (value) {
             switch (value) {
-                case "in":
-                    return "Received"
-                case "out":
-                    return "Sent"
-                case "failed":
-                    return "Failed"
-                case "pending":
-                case "pool":
-                    return "Pending"
-                case "miner":
-                    return "Miner"
-                case "snode":
-                    return "Service Node"
-                case "stake":
-                    return "Stake"
-                default:
-                    return "-"
+            case "in":
+                return "Received"
+            case "out":
+                return "Sent"
+            case "failed":
+                return "Failed"
+            case "pending":
+            case "pool":
+                return "Pending"
+            case "miner":
+                return "Miner"
+            case "snode":
+                return "Service Node"
+            case "stake":
+                return "Stake"
+            default:
+                return "-"
             }
         }
     },
     methods: {
+        addmore () {
+            this.amount += 25
+        },
         filterTxList () {
             const all_in = ["in", "pool", "miner", "snode"]
             const all_out = ["out", "pending", "stake"]
@@ -200,26 +211,26 @@ export default {
                     return false
                 }
 
-                if(!this.type.startsWith("all") && this.type !== tx.type) {
+                if (!this.type.startsWith("all") && this.type !== tx.type) {
                     valid = false
                     return valid
                 }
 
-                if(this.txid !== "") {
+                if (this.txid !== "") {
                     valid = tx.txid.toLowerCase().indexOf(this.txid.toLowerCase()) !== -1
                     return valid
                 }
 
-                if(this.toOutgoingAddress !== "") {
-                    if(tx.hasOwnProperty("destinations")) {
-                        valid = tx.destinations.filter((destination) => { return destination.address === this.toOutgoingAddress }).length;
+                if (this.toOutgoingAddress !== "") {
+                    if (tx.hasOwnProperty("destinations")) {
+                        valid = tx.destinations.filter((destination) => { return destination.address === this.toOutgoingAddress }).length
                     } else {
                         valid = false
                     }
                     return valid
                 }
 
-                if(this.toIncomingAddressIndex !== -1) {
+                if (this.toIncomingAddressIndex !== -1) {
                     valid = tx.hasOwnProperty("subaddr_index") && tx.subaddr_index.minor == this.toIncomingAddressIndex
                     return valid
                 }
@@ -230,9 +241,9 @@ export default {
         pageTxList () {
             this.tx_list_paged = this.tx_list_filtered.slice(0, this.limit !== -1 ? this.limit : this.page * 24 + 24)
         },
-        loadMore: function(index, done) {
+        loadMore: function (index, done) {
             this.page = index
-            if(this.limit !== -1 || this.tx_list_filtered.length < this.page * 24 + 24) {
+            if (this.limit !== -1 || this.tx_list_filtered.length < this.page * 24 + 24) {
                 this.$refs.scroller.stop()
             }
             this.pageTxList()
@@ -241,24 +252,20 @@ export default {
             })
         },
         details (tx) {
-            this.$refs.txDetails.tx = tx;
-            this.$refs.txDetails.txNotes = tx.note;
-            this.$refs.txDetails.isVisible = true;
+            this.$refs.txDetails.tx = tx
+            this.$refs.txDetails.txNotes = tx.note
+            this.$refs.txDetails.isVisible = true
         },
-        formatHeight(tx) {
-            let height = tx.height;
-            let confirms = Math.max(0, this.wallet_height - height);
-            if(height == 0)
-                return "Pending"
-            if(confirms < Math.max(10, tx.unlock_time - height))
-                return `Height: ${height} (${confirms} confirm${confirms==1?'':'s'})`
-            else
-                return `Height: ${height} (confirmed)`
+        formatHeight (tx) {
+            let height = tx.height
+            let confirms = Math.max(0, this.wallet_height - height)
+            if (height == 0) { return "Pending" }
+            if (confirms < Math.max(10, tx.unlock_time - height)) { return `Height: ${height} (${confirms} confirm${confirms == 1 ? "" : "s"})` } else { return `Height: ${height} (confirmed)` }
         },
         copyTxid (txid, event) {
             event.stopPropagation()
-            for(let i = 0; i < event.path.length; i++) {
-                if(event.path[i].tagName == "BUTTON") {
+            for (let i = 0; i < event.path.length; i++) {
+                if (event.path[i].tagName == "BUTTON") {
                     event.path[i].blur()
                     break
                 }
@@ -271,7 +278,7 @@ export default {
             })
         },
         openExplorer (txid) {
-            this.$gateway.send("core", "open_explorer", {type: "tx", id: txid})
+            this.$gateway.send("core", "open_explorer", { type: "tx", id: txid })
         }
     },
     components: {

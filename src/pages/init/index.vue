@@ -112,7 +112,7 @@ export default {
                     this.$refs.wallet.className = "grey"
                     break;
                 case 2:
-                    this.message = "Loading settings"
+                    this.message = "Loading settings and finding fastest remote node"
                     this.$refs.backend.className = "solid"
                     this.$refs.settings.className = "pulse"
                     this.$refs.daemon.className = "grey"
@@ -153,6 +153,25 @@ export default {
         }
     },
     mounted() {
+        console.log(this.$state)
+        // console.log(this.remotes)
+        // for (const i in this.remotes) {
+        //     const requestOptions = {
+        //         method: "POST",
+        //         headers: { "Content-Type": "application/json" },
+        //         body: JSON.stringify({ title: "Vue POST Request Example" })
+        //     };
+        //     fetch("https://jsonplaceholder.typicode.com/posts", requestOptions)
+        //         .then(response => response.json())
+        //         .then(data => (this.postId = data.id));
+            // fetch("https://api.coingecko.com/api/v3/coins/triton?tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false\n")
+            //     .then(response => response.json())
+            //     .then(data => {
+            //         console.log(data.market_data.current_price.usd)
+            //         this.price = data.market_data.current_price.usd
+            //         this.$forceUpdate()
+            //     });
+        // }
         this.updateStatus()
     },
     watch: {

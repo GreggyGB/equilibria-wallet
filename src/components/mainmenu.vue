@@ -1,6 +1,6 @@
 <template>
 <div>
-    <q-btn class="menu" icon="menu" size="lg" flat style="margin: 20px">
+    <q-btn class="menu" icon="menu" size="lg" flat style="margin: 10px; right: 0px">
         <q-popover>
             <q-list separator link>
                 <q-item v-close-overlay @click.native="switchWallet" v-if="!disableSwitchWallet">
@@ -10,7 +10,7 @@
                 </q-item>
                 <q-item v-close-overlay @click.native="openSettings">
                     <q-item-main>
-                        <q-item-tile label>Settings</q-item-tile>
+                        <q-item-tile label>Daemon Settings</q-item-tile>
                     </q-item-main>
                 </q-item>
                 <q-item v-close-overlay @click.native="showAbout(true)">

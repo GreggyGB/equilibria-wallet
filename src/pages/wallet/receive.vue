@@ -33,23 +33,6 @@
                     </q-btn>
                 </q-item-side>
             </q-item>
-            <q-item-separator />
-            <q-item class="info">
-                <q-item-main class="flex justify-between">
-                    <div class="column">
-                        <span>Balance</span>
-                        <span class="value">{{address.balance | currency}}</span>
-                    </div>
-                    <div class="column">
-                        <span>Unlocked balance</span>
-                        <span class="value">{{ address.unlocked_balance | currency }}</span>
-                    </div>
-                    <div class="column">
-                        <span>Unspent outputs</span>
-                        <span class="value">{{ address.num_unspent_outputs | toString }}</span>
-                    </div>
-                </q-item-main>
-            </q-item>
             <q-context-menu>
                 <q-list link separator style="min-width: 150px; max-height: 300px;">
                     <q-item v-close-overlay
@@ -71,7 +54,7 @@
                 <q-item>
                     <q-item-main>
                         <q-item-tile class="ellipsis" label>{{ address.address }}</q-item-tile>
-                        <q-item-tile sublabel>Sub-address (Index {{ address.address_index }})</q-item-tile>
+                        <q-item-tile sublabel>Ssecondary {{ address.address_index }}</q-item-tile>
                     </q-item-main>
                     <q-item-side>
                         <q-btn
@@ -129,10 +112,23 @@
                 </q-context-menu>
             </q-list>
         </template>
+<!--        {{showMessage}}-->
 
-
-        <template v-if="address_list.unused.length">
-            <q-list-header>My unused addresses</q-list-header>
+        <div v-if="!show"  style="margin-left: auto; width: 250px; margin-right: auto">
+            <q-field class="q-pt-sm" >
+                <q-btn style="margin-left: auto; width: 250px; margin-right: auto"
+                       class="send-btn"
+                       color="positive" @click.native="showUnused()" label="Show Secondary Addresses" />
+            </q-field>
+        </div>
+        <div v-else  style="margin-left: auto; width: 250px; margin-right: auto">
+            <q-field class="q-pt-sm" >
+                <q-btn style="margin-left: auto; width: 250px; margin-right: auto"
+                       class="send-btn"
+                       color="positive" @click.native="showUnused()" label="Hide Secondary Addresses" />
+            </q-field>
+        </div>
+        <template v-if="show" >
             <q-list class="triton-list-item" no-border v-for="address in address_list.unused" @click.native="details(address)" :key="address.address">
                 <q-item>
                     <q-item-main>
@@ -242,10 +238,16 @@ export default {
             QR: {
                 visible: false,
                 address: null,
+                show: false,
+                showMessage: "Show Unused Addresses"
             }
         }
     },
     methods: {
+        showUnused() {
+          this.show = !this.show
+          this.$forceUpdate()
+        },
         details (address) {
             this.$refs.addressDetails.address = address;
             this.$refs.addressDetails.isVisible = true;

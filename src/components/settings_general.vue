@@ -1,20 +1,20 @@
 <template>
 <div class="settings-general">
-    <div class="row justify-between q-mb-md">
-        <div><q-radio v-model="config_daemon.type" val="remote" label="Remote Daemon Only" /></div>
-        <div><q-radio v-model="config_daemon.type" val="local_remote" label="Local + Remote Daemon" /></div>
-        <div><q-radio v-model="config_daemon.type" val="local" label="Local Daemon Only" /></div>
-    </div>
+<!--    <div class="row justify-between q-mb-md">-->
+<!--        <div><q-radio v-model="config_daemon.type" val="remote" label="Remote Daemon Only" /></div>-->
+<!--        <div><q-radio v-model="config_daemon.type" val="local_remote" label="Local + Remote Daemon" /></div>-->
+<!--        <div><q-radio v-model="config_daemon.type" val="local" label="Local Daemon Only" /></div>-->
+<!--    </div>-->
 
-    <p v-if="config_daemon.type == 'local_remote'">
-        Get started quickly with this default option. Wallet will download the full blockchain, but use a remote node while syncing.
-    </p>
-    <p v-if="config_daemon.type == 'local'">
-        Full security, wallet will download the full blockchain. You will not be able to transact until sync is completed.
-    </p>
-    <p v-if="is_remote">
-        Less security, wallet will connect to a remote node to make all transactions.
-    </p>
+<!--    <p v-if="config_daemon.type == 'local_remote'">-->
+<!--        Get started quickly with this default option. Wallet will download the full blockchain, but use a remote node while syncing.-->
+<!--    </p>-->
+<!--    <p v-if="config_daemon.type == 'local'">-->
+<!--        Full security, wallet will download the full blockchain. You will not be able to transact until sync is completed.-->
+<!--    </p>-->
+<!--    <p v-if="is_remote">-->
+<!--        Less security, wallet will connect to a remote node to make all transactions.-->
+<!--    </p>-->
 
     <template v-if="config_daemon.type != 'remote'">
         <div class="row pl-sm">
@@ -80,20 +80,20 @@
 
     </template>
 
-    <div class="col q-mt-md pt-sm">
-        <tritonField label="Data Storage Path" disable-hover>
-            <q-input v-model="config.app.data_dir" disable :dark="theme=='dark'" hide-underline/>
-            <input type="file" webkitdirectory directory id="dataPath" v-on:change="setDataPath" ref="fileInputData" hidden />
-            <q-btn color="secondary" v-on:click="selectPath('data')" :text-color="theme=='dark'?'white':'dark'">Select Location</q-btn>
-        </tritonField>
-        <tritonField label="Wallet Storage Path" disable-hover>
-            <q-input v-model="config.app.wallet_data_dir" disable :dark="theme=='dark'" hide-underline/>
-            <input type="file" webkitdirectory directory id="walletPath" v-on:change="setWalletDataPath" ref="fileInputWallet" hidden />
-            <q-btn color="secondary" v-on:click="selectPath('wallet')" :text-color="theme=='dark'?'white':'dark'">Select Location</q-btn>
-        </tritonField>
-    </div>
-
     <q-collapsible label="Advanced Options" header-class="q-mt-sm non-selectable row reverse advanced-options-label">
+
+        <div class="col q-mt-md pt-sm">
+            <tritonField label="Data Storage Path" disable-hover>
+                <q-input v-model="config.app.data_dir" disable :dark="theme=='dark'" hide-underline/>
+                <input type="file" webkitdirectory directory id="dataPath" v-on:change="setDataPath" ref="fileInputData" hidden />
+                <q-btn color="secondary" v-on:click="selectPath('data')" :text-color="theme=='dark'?'white':'dark'">Select Location</q-btn>
+            </tritonField>
+            <tritonField label="Wallet Storage Path" disable-hover>
+                <q-input v-model="config.app.wallet_data_dir" disable :dark="theme=='dark'" hide-underline/>
+                <input type="file" webkitdirectory directory id="walletPath" v-on:change="setWalletDataPath" ref="fileInputWallet" hidden />
+                <q-btn color="secondary" v-on:click="selectPath('wallet')" :text-color="theme=='dark'?'white':'dark'">Select Location</q-btn>
+            </tritonField>
+        </div>
 
         <div class="row pl-sm q-mt-sm">
             <tritonField class="col-6" label="Daemon Log Level" :disable="is_remote">

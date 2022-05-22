@@ -1,66 +1,67 @@
 <template>
-<q-page class="welcome">
+    <q-page class="welcome">
 
-    <q-stepper class="no-shadow" ref="stepper" :color="theme == 'dark' ? 'light' : 'dark'" dark @step="onStep">
+        <q-stepper class="no-shadow" ref="stepper" :color="theme == 'dark' ? 'light' : 'dark'" dark @step="onStep">
 
-        <q-step default title="Welcome" class="first-step">
+            <q-step default title="Welcome" class="first-step">
 
-            <div class="welcome-container">
-                <img src="statics/equilibria.svg" height="100" class="q-mb-md">
-                <div>Version: ATOM v{{version}}-v{{daemonVersion}}</div>
+                <div class="welcome-container">
+                    <img src="statics/equilibria.svg" height="100" class="q-mb-md">
+                    <div>Version: ATOM v{{ version }}-v{{ daemonVersion }}</div>
 
-                <h6 class="q-mb-md" style="font-weight: 300">Select language:</h6>
+                    <h6 class="q-mb-md" style="font-weight: 300">Select language:</h6>
 
-                <q-btn
-                    color="primary"
-                    size="md"
-                    icon="language"
-                    label="English"
-                    @click="clickNext()"
-                />
-
-                <p class="q-mt-md">More languages coming soon</p>
-            </div>
-
-        </q-step>
-
-        <q-step title="Configure">
-            <SettingsGeneral randomise_remote ref="settingsGeneral" />
-        </q-step>
-    </q-stepper>
-
-     <q-layout-footer v-if="!is_first_page" class="no-shadow q-pa-sm">
-        <div class="row justify-end">
-            <div>
-                <q-btn
-                    flat
-                    @click="clickPrev()"
-                    label="Back"
+                    <q-btn
+                        color="primary"
+                        size="md"
+                        icon="language"
+                        label="English"
+                        @click="clickNext()"
                     />
-            </div>
-            <div>
-                <q-btn
-                    class="q-ml-sm"
-                    color="primary"
-                    @click="clickNext()"
-                    label="Next"
-                    />
-            </div>
-        </div>
-    </q-layout-footer>
 
-</q-page>
+                    <p class="q-mt-md">More languages coming soon</p>
+                </div>
+
+            </q-step>
+
+            <q-step title="Configure">
+                <SettingsGeneral randomise_remote ref="settingsGeneral"/>
+            </q-step>
+        </q-stepper>
+
+        <q-layout-footer v-if="!is_first_page" class="no-shadow q-pa-sm">
+            <div class="row justify-end">
+                <div>
+                    <q-btn
+                        flat
+                        @click="clickPrev()"
+                        label="Back"
+                    />
+                </div>
+                <div>
+                    <q-btn
+                        class="q-ml-sm"
+                        color="primary"
+                        @click="clickNext()"
+                        label="Next"
+                    />
+                </div>
+            </div>
+        </q-layout-footer>
+
+    </q-page>
 </template>
 
 <script>
-import { version, daemonVersion } from "../../../package.json"
-import { mapState } from "vuex"
+import {version, daemonVersion} from "../../../package.json"
+import {mapState} from "vuex"
 import SettingsGeneral from "components/settings_general"
+
 export default {
     computed: mapState({
         theme: state => state.gateway.app.config.appearance.theme,
         pending_config: state => state.gateway.app.pending_config,
-        config_daemon (state) {
+        config_daemon(state) {
             return this.pending_config.daemons[this.pending_config.app.net_type]
         },
     }),
@@ -72,7 +73,7 @@ export default {
             daemonVersion: ""
         }
     },
-    mounted () {
+    mounted() {
 
         this.version = version
         this.daemonVersion = daemonVersion
@@ -85,18 +86,18 @@ export default {
         });
     },
     methods: {
-        onStep () {
+        onStep() {
             this.is_first_page = this.$refs.stepper.steps[0].active
         },
-        clickNext () {
-            if(this.$refs.stepper.steps[this.$refs.stepper.length-1].active) {
-                this.$gateway.send("core", "save_config_init", this.pending_config);
-                this.$router.replace({ path: "/" });
-            } else {
-                this.$refs.stepper.next();
-            }
+        clickNext() {
+            // if(this.$refs.stepper.steps[this.$refs.stepper.length-1].active) {
+            this.$gateway.send("core", "save_config_init", this.pending_config);
+            this.$router.replace({path: "/"});
+            // } else {
+            //     this.$refs.stepper.next();
+            // }
         },
-        clickPrev () {
+        clickPrev() {
             this.$refs.stepper.previous();
         },
     },
@@ -137,7 +138,7 @@ export default {
         border-radius: 25px;
         display: inline-block;
         line-height: 50px;
-        text-align:center;
+        text-align: center;
         color: white;
         margin-right: 10px;
     }

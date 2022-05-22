@@ -8,11 +8,9 @@
             </div>
         </template>
         <template v-else>
-
             <div class="q-pa-md">
-                <div class="col q-mt-sm">
-                    <!-- Amount -->
-<!--                    <div class="col-4">-->
+                <div class="row gutter-md">
+                    <div class="col-4">
                         <tritonField label="Amount of XEQ to Swap for wXEQ" :error="$v.newTx.amount.$error">
                             <q-input v-model="newTx.amount"
                                      :dark="theme=='dark'"
@@ -26,107 +24,33 @@
                             />
                             <q-btn color="secondary" @click="newTx.amount = unlocked_balance / 1e4; conversionFromXtri()" :text-color="theme=='dark'?'white':'dark'">All</q-btn>
                         </tritonField>
-<!--                    </div>-->
+                    </div>
+                    <div class="col-4">
+                        <tritonField label="Bridge Address" >
+                            <!--                                 :error="$v.newTx.address.$error"-->
+                            <q-input v-model="newTx.address"
+                                     :dark="theme=='dark'"
+                                     @blur="$v.newTx.address.$touch"
+                                     :placeholder="'Tw...'"
+                                     hide-underline
+                            />
+                            <q-btn color="secondary" :text-color="theme=='dark'?'white':'dark'" to="addressbook">Contacts</q-btn>
+                        </tritonField>
+                    </div>
+                    <div class="col-4">
+                        <tritonField label="Ethereum Address" >
+                            <!--                                 :error="$v.newTx.address.$error"-->
+                            <q-input v-model="newTx.memo"
+                                     :dark="theme=='dark'"
+                                     @blur="$v.newTx.memo.$touch"
+                                     :placeholder="'0x...'"
+                                     hide-underline
+                            />
+<!--                            <q-btn color="secondary" :text-color="theme=='dark'?'white':'dark'" to="addressbook">Contacts</q-btn>-->
+                        </tritonField>
 
-                    <!-- Currency -->
-<!--                    <div class ="col-4">-->
-<!--                        <tritonField label="Currency">-->
-<!--                            <q-select :dark="theme=='dark'"-->
-<!--                                      v-model="newTx.currency"-->
-<!--                                      :options="currencyOptions"-->
-<!--                                      hide-underline-->
-<!--                                      @input="conversionToXtri()"-->
-<!--                            />-->
-<!--                        </tritonField>-->
-<!--                    </div>-->
-
-                    <!-- Priority -->
-<!--                    <div class="col-4">-->
-<!--                        <tritonField label="Priority">-->
-<!--                            <q-select :dark="theme=='dark'"-->
-<!--                                      v-model="newTx.priority"-->
-<!--                                      :options="priorityOptions"-->
-<!--                                      hide-underline-->
-<!--                            />-->
-<!--                        </tritonField>-->
-<!--                    </div>-->
-
+                    </div>
                 </div>
-
-                <!-- amount in xeq-->
-<!--                <div class="row gutter-md">-->
-<!--                    <div class="col-4">-->
-<!--                        <tritonField label="Amount in xeq" :error="$v.newTx.amount.$error">-->
-<!--                            <q-input v-model="newTx.amount"-->
-<!--                                     :dark="theme=='dark'"-->
-<!--                                     type="number"-->
-<!--                                     min="0"-->
-<!--                                     :max="unlocked_balance / 1e4"-->
-<!--                                     placeholder="0"-->
-<!--                                     @blur="$v.newTx.amount.$touch"-->
-<!--                                     hide-underline-->
-<!--                                     @change.native="conversionFromXtri()"-->
-<!--                            />-->
-<!--                            <q-btn color="secondary" @click="newTx.amount = unlocked_balance / 1e4; conversionFromXtri()" :text-color="theme=='dark'?'white':'dark'">All</q-btn>-->
-<!--                        </tritonField>-->
-
-<!--                    </div>-->
-<!--                </div>-->
-
-                <!-- Address -->
-                <div class="col q-mt-sm">
-                    <tritonField label="Bridge Address" >
-<!--                                 :error="$v.newTx.address.$error"-->
-                        <q-input v-model="newTx.address"
-                                 :dark="theme=='dark'"
-                                 @blur="$v.newTx.address.$touch"
-                                 :placeholder="'Tw...'"
-                                 hide-underline
-                        />
-                        <q-btn color="secondary" :text-color="theme=='dark'?'white':'dark'" to="addressbook">Contacts</q-btn>
-                    </tritonField>
-                </div>
-                <div class="col q-mt-sm">
-                    <tritonField label="Ethereum Address" >
-<!--                                 :error="$v.newTx.address.$error"-->
-                        <q-input v-model="newTx.memo"
-                                 :dark="theme=='dark'"
-                                 @blur="$v.newTx.memo.$touch"
-                                 :placeholder="'0x...'"
-                                 hide-underline
-                        />
-                        <q-btn color="secondary" :text-color="theme=='dark'?'white':'dark'" to="addressbook">Contacts</q-btn>
-                    </tritonField>
-                </div>
-
-<!--                &lt;!&ndash; Payment ID &ndash;&gt;-->
-<!--                <div class="col q-mt-sm">-->
-<!--                    <tritonField label="Payment id" :error="$v.newTx.payment_id.$error" optional>-->
-<!--                        <q-input v-model="newTx.payment_id"-->
-<!--                                 :dark="theme=='dark'"-->
-<!--                                 @blur="$v.newTx.payment_id.$touch"-->
-<!--                                 placeholder="16 or 64 hexadecimal characters"-->
-<!--                                 hide-underline-->
-<!--                        />-->
-<!--                    </tritonField>-->
-<!--                </div>-->
-
-<!--                &lt;!&ndash; Notes &ndash;&gt;-->
-<!--                <div class="col q-mt-sm">-->
-<!--                    <tritonField label="Notes" optional>-->
-<!--                        <q-input v-model="newTx.note"-->
-<!--                                 type="textarea"-->
-<!--                                 :dark="theme=='dark'"-->
-<!--                                 placeholder="Additional notes to attach to the transaction"-->
-<!--                                 hide-underline-->
-<!--                        />-->
-<!--                    </tritonField>-->
-<!--                </div>-->
-
-                <!-- Save to address book -->
-                <q-field>
-                    <q-checkbox v-model="newTx.address_book.save" label="Save to address book" :dark="theme=='dark'" />
-                </q-field>
 
                 <div v-if="newTx.address_book.save">
                     <tritonField label="Name" optional>

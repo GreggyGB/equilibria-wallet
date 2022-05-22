@@ -13,7 +13,7 @@
 
             <template>
                 <q-toolbar-title>
-                    <div class="flex items-center justify-center" style="margin-top:0px">
+                    <div class="flex items-center justify-center" style="margin-top:12px">
                         <div style="padding-left: auto; padding-right: auto; padding-top: auto; padding-bottom: auto;">
                             <img src="statics/xeq_logo_with_padding.png" height="60">
                         </div>

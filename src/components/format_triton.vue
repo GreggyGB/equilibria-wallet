@@ -1,7 +1,5 @@
 <template>
-<span>
-    {{ value }} xeq
-</span>
+<span>{{ value }}</span>
 </template>
 
 <script>
@@ -21,7 +19,7 @@ export default {
         value () {
             let value = this.amount / 1e4
             if(this.round)
-                value = value.toFixed(3)
+                value = value.toFixed(2)
             return value.toLocaleString()
         }
 

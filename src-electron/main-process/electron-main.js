@@ -105,7 +105,6 @@ function createWindow () {
             if (err) throw err
 
             let port = (Math.floor(Math.random() * 6) + 1).toString() + Math.floor(Math.random() * (5 + 1)).toString() + Math.floor(Math.random() * (5 + 1)).toString() + Math.floor(Math.random() * (3 + 1)).toString() + Math.floor(Math.random() * (5 + 1)).toString()
-
             let config = {
                 port: port,
                 token: buffer.toString("hex")

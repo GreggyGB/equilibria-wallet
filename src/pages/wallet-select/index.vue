@@ -3,8 +3,8 @@
     <q-list class="wallet-list" link no-border :dark="theme=='dark'">
         <template v-if="wallets.list.length">
             <div class="header row justify-between items-center">
-                <div class="header-title">Your Accounts</div>
-                <q-btn class="add" icon="add" size="md" color="primary" v-if="wallets.list.length">
+                <div style="margin-left: 71px; font-size: 20px" class="header-title">Accounts</div>
+                <q-btn class="primary" icon="add" size="md" color="transparent" v-if="wallets.list.length">
                     <q-popover class="header-popover">
                         <q-list separator link>
                             <q-item v-for="action in actions" @click.native="action.handler" :key="action.name">
@@ -98,7 +98,15 @@ export default {
         this.$gateway.send("wallet", "list_wallets")
     },
     methods: {
-        openWallet(wallet) {
+        async openWallet(wallet) {
+            // this.$gateway.send("wallet", "open_wallet", {name: wallet.name, password: ""});
+            // const checkRoute = async () => {
+            //     while (this.$router.history.current.name == "wallet-select") {
+            //         await new Promise(r => setTimeout(r, 10));
+            //     }
+            // }
+            // checkRoute()
+            console.log('test', this.$router.history.current)
             if(wallet.password_protected !== false) {
                 this.$q.dialog({
                     title: "Password",

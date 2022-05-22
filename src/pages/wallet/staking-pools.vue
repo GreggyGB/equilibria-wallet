@@ -4,81 +4,131 @@
             <div class="row justify-center" style="margin-bottom:0%;padding-bottom:0px">
                 <h4 style="padding-bottom:0px;margin-bottom:0%;">Network Stats</h4>
             </div>
-            <div class="row justify-center" style="padding-top:0px;margin-top:0%">
-            <h5 style="padding-top:0px;margin:1%;text-align: justify;">Nodes Online: {{(tx_list.length.toLocaleString())}}
-             </h5>
-             <h5 style="padding-top:0px;margin:1%;text-align: justify;">Monthly Yield: {{Number((((720 / tx_list.length) * 5.4 * 30) / (tx_list[0].staking_requirement/1e4) * 100).toFixed(2)).toLocaleString()}}%</h5>
-             <h5 style="padding-top:0px;margin:1%;text-align: justify;">             Daily Reward: {{Number(((720 / tx_list.length) * 5.4).toFixed(2)).toLocaleString()}} XEQ 
-            </h5>   
-            <h5 style="padding-top:0px;margin:1%;text-align: justify;">
-                Total Value Locked: ${{Number(conversionFromXtri(getTVL())).toLocaleString()}}
-            </h5>
+            <div class="row justify-center" style="padding-top:0px;margin-top:0%; width: 100%">
+                <h5 style="padding-top:0px;margin:1%;text-align: left;">Total Nodes:
+                    {{ (tx_list.length.toLocaleString()) }}
+                </h5>
+                <h5 style="padding-top:0px;margin:1%;text-align: justify;">Monthly Yield:
+                    {{
+                        Number((((720 / tx_list.length) * 5.4 * 30) / (tx_list[0].staking_requirement / 1e4) * 100).toFixed(2)).toLocaleString()
+                    }}%</h5>
+                <h5 style="padding-top:0px;margin:1%;text-align: justify;"> Monthly Reward:
+                    {{ (Number(((720 / tx_list.length) * 5.4) * 30)).toLocaleString() }} XEQ
+                </h5>
+                <h5 style="padding-top:0px;margin:1%;text-align: justify;">
+                    TVL: ${{ Number(conversionFromXtri(getTVL())).toLocaleString() }}
+                </h5>
             </div>
         </div>
+        <div v-if="total_stake_amount" style="padding-bottom: 0px;">
+            <div class="row justify-center" style="margin-bottom:0%;padding-bottom:0px">
+                <h4 style="padding-bottom:0px;margin-bottom:0%;">Account Stats</h4>
+            </div>
+            <div class="row justify-center" style="padding-top:0px;margin-top:0%; width: 100%">
+
+                <h5 style="padding-top:0px;margin:1%;text-align: justify;">Total Staked:
+                    {{
+                        (total_stake_amount / (10 ** 4)).toLocaleString()
+                    }}</h5>
+                <h5 style="padding-top:0px;margin:1%;text-align: left;">Daily Earnings:
+                    {{ ((daily_reward / (10 ** 4)).toLocaleString()) }}
+                </h5>
+                <h5 style="padding-top:0px;margin:1%;text-align: justify;"> Nodes Staked To:
+                    {{ num_nodes_staked_to.toLocaleString() }}
+                </h5>
+                <h5 style="padding-top:0px;margin:1%;text-align: justify;">
+                    Estimated Earnings for Period:
+                    ${{ (this.current_price * this.earnings_for_period / (10 ** 4)).toLocaleString() }} |
+                    {{ (this.earnings_for_period / (10 ** 4)).toLocaleString() }} XEQ
+                </h5>
+            </div>
+        </div>
+
         <div class="row justify-center" style="margin-bottom:0%;padding-bottom:0px">
-                <h4 style="padding-bottom:0px;margin-bottom:0%;">Oracle Node Pools</h4>
+            <h4 style="padding-bottom:0px;margin-bottom:0%;">Oracle Node Pools</h4>
         </div>
         <div class="row q-pt-sm q-mx-md q-mb-sm items-end non-selectable">
             <div style="padding-top: 5px;" class="tx-list">
                 <div class="row justify-center">
+<!--                    <div v-for="item in staked_pools" :key="item.service_node_pubkey + '1'">-->
+<!--                        <div class="col-2" style="padding: 4%;">-->
+<!--                            <div-->
+<!--                                style="background-color: #222222; border-radius: 5px;margin:auto; padding: 50px;padding-top:5px;padding-bottom:5px; -webkit-box-shadow: 0px 0px 21px -1px #005BC6;-->
+<!--box-shadow: 0px 0px 21px -1px #005BC6;">-->
+<!--                                <h6 class="type" style="color:white">-->
+<!--                                    Oracle Node ID: {{-->
+<!--                                        item.service_node_pubkey.substring(0, 4)-->
+<!--                                    }}...{{-->
+<!--                                        item.service_node_pubkey.substring(item.service_node_pubkey.length - 5, item.service_node_pubkey.length - 1)-->
+<!--                                    }}-->
+<!--                                </h6>-->
+<!--                                <p class="main" style="color:white">-->
+<!--                                    Stakers: {{-->
+<!--                                        (item.contributors.length).toLocaleString()-->
+<!--                                    }} <br/>-->
+<!--                                    Lock Time: {{-->
+<!--                                        getLockTime(item.registration_height)-->
+<!--                                    }}</br>-->
+<!--                                </p>-->
+
+<!--                                <div v-if="isFull(item)">-->
+<!--                                    <q-field class="q-pt-sm">-->
+<!--                                        <q-btn style="background-color: #005BC6"-->
+<!--                                               class="send-btn"-->
+<!--                                               color="positive"-->
+<!--                                               @click="handleClick(item.service_node_pubkey, item.operator_address, (item.staking_requirement - item.total_contributed)/10000)"-->
+<!--                                               label="Stake"/>-->
+<!--                                    </q-field>-->
+<!--                                </div>-->
+<!--                                <div v-else="!isFull(item.contributors)">-->
+
+<!--                                    <div style="padding-bottom: 75px"/>-->
+<!--                                </div>-->
+
+<!--                            </div>-->
+<!--                        </div>-->
+
+
+<!--                        <div style="padding-top: 5px"/>-->
+<!--                    </div>-->
                     <div v-for="item in tx_list" :key="item.service_node_pubkey">
-                        <div class="col-2" style="padding: 10px; margin-left: auto; ">
-                        <div v-if="isMine(item.contributors)" 
-                            style="  box-shadow: 0 0px 0px 0px rgb(0, 250, 154), 0 0px 0px 0 rgb(0, 250, 154), 0 0px 10px 0 rgb(0, 250, 154);
+                        <div v-if="isFull(item)" class="col-2" style="padding: 4%;">
+                            <div
+                                style="background-color: #222222; border-radius: 5px;margin:auto; padding: 50px;padding-top:5px;padding-bottom:5px">
+                                <h6 class="type" style="color:white">
+                                    Oracle Node ID: {{
+                                        item.service_node_pubkey.substring(0, 4)
+                                    }}...{{
+                                        item.service_node_pubkey.substring(item.service_node_pubkey.length - 5, item.service_node_pubkey.length - 1)
+                                    }}
+                                </h6>
+                                <p class="main" style="color:white">
+                                    <!--                                    Stakers: {{-->
+                                    <!--                                        (item.contributors.length).toLocaleString()-->
+                                    <!--                                    }} <br/>-->
+                                    Available: {{
+                                        ((item.staking_requirement / 10000) - (item.total_contributed / 10000)).toLocaleString()
+                                    }} XEQ<br/>
+                                    <!--                                    Operator Fee : {{-->
+                                    <!--                                        (((item.portions_for_operator / 18446744073709551612) * 100)).toLocaleString()-->
+                                    <!--                                    }}% <br/>-->
+                                    Lock Time: {{
+                                        getLockTime(item.registration_height)
+                                    }}</br>
+                                </p>
 
-                            background-color: #222222; border-radius: 5px;margin-right:auto; margin-left:auto;padding: 50px;padding-top:5px;padding-bottom:60px">
-                            <h6 class="type" style="color:white">
-                                Oracle Node ID: {{ item.service_node_pubkey.substring(0, 4) }}...{{ item.service_node_pubkey.substring(item.service_node_pubkey.length-5, item.service_node_pubkey.length-1) }}
-                            </h6>
-                            <p class="main" style="color:white">
-                                Total Stakers: {{
-                                    (item.contributors.length).toLocaleString()
-                                }} <br/>
-                                Your Stake (%): {{(myShare(item.contributors) / 1e4).toLocaleString()}} XEQ ({{((myShare(item.contributors) / item.total_contributed) * 100).toFixed().toLocaleString()}}%) </br>
-                                Your Daily Reward: {{((myShare(item.contributors) / item.total_contributed) * ((720 / tx_list.length) * 4.5) * ( 1 - ((item.portions_for_operator / 18446744073709551612)))).toFixed(4).toLocaleString()}} XEQ </br>
-                                Operator Fee : {{
-                                   (((item.portions_for_operator / 18446744073709551612) * 100)).toLocaleString()
-                                }}% <br/>
-                                Expiration: {{
-                                    (((item.registration_height + 20160) - info.height) / 720).toFixed(0).toLocaleString()
-                                }} days </br>
-                            </p>
-                        </div>
-                        <div v-else="isMine(item.contributors)" 
-                            style="  box-shadow: 0 0px 0px 0px rgb(250, 128, 114), 0 0px 0px 0 rgb(250, 128, 114), 0 0px 10px 0 rgb(250, 128, 114);
+                                <div v-if="isFull(item)">
+                                    <q-field class="q-pt-sm">
+                                        <q-btn style="background-color: #005BC6"
+                                               class="send-btn"
+                                               color="positive"
+                                               @click="handleClick(item.service_node_pubkey, item.operator_address, (item.staking_requirement - item.total_contributed)/10000)"
+                                               label="Stake"/>
+                                    </q-field>
+                                </div>
+                                <div v-else="!isFull(item.contributors)">
 
-                            background-color: #222222; border-radius: 5px;margin:auto; padding: 50px;padding-top:5px;padding-bottom:5px">
-
-                            <h6 class="type" style="color:white">
-                            Oracle Node ID: {{ item.service_node_pubkey.substring(0, 4) }}...{{ item.service_node_pubkey.substring(item.service_node_pubkey.length-5, item.service_node_pubkey.length-1) }}
-                            </h6>
-                            <p class="main" style="color:white">
-                                Stakers: {{
-                                    (item.contributors.length).toLocaleString()
-                                }} <br/>
-                                Open for stake: {{
-                                    ((item.staking_requirement / 10000) - (item.total_contributed / 10000)).toLocaleString()
-                                }} <br/>
-                                Operator Fee : {{
-                                   (((item.portions_for_operator / 18446744073709551612) * 100)).toLocaleString()
-                                }}% <br/>
-                                Days Left: {{
-                                    (((item.registration_height + 20160) - info.height) / 720).toFixed(0).toLocaleString()
-                                }} days </br>
-                            </p>
-
-                            <div v-if="isFull(item)">
-                            <q-field class="q-pt-sm">
-                                <q-btn style="background-color: #14afde"
-                                       class="send-btn"
-                                       color="positive"
-                                       @click="handleClick(item.service_node_pubkey, item.operator_address, (item.staking_requirement - item.total_contributed)/10000)"
-                                       label="Join"/>
-                            </q-field>
-                            </div>
-                            <div v-else="!isFull(item.contributors)">
-                            
-                                <div style="padding-bottom: 75px"/>
+                                    <div style="padding-bottom: 75px"/>
                                 </div>
 
                             </div>
@@ -86,38 +136,44 @@
 
 
                         <div style="padding-top: 5px"/>
-                        </div>
                     </div>
                 </div>
             </div>
-            <q-modal v-model="openedSend" minimized content-css="padding: 0 2rem 2rem 2rem" class="confirmBtn">
-                <h5>CONFIRM AMOUNT TO STAKE</h5>
-                <p>Oracle ID: {{ oracleKey }}</p>
-                <p>Max Amount: {{ maxAmount }}</p>
-                <tritonField label="Amount">
-                    <q-input
-                        v-model="stake_amount"
-                        type="number"
-                        min="0"
-                        :max="maxAmount"
-                        placeholder="0"
-                        hide-underline
-                    />
-                </tritonField>
-                <div style="margin-left: auto; margin-right: auto;padding-top: 10px">
-                    <q-btn
-                        style="background-color: #14afde"
-                        class="send-btn"
-                        color="positive" @click="stake(), openedSend = false" label="Confirm Stake"/>
-                </div>
-            </q-modal>
-
         </div>
+        <q-modal v-model="openedSend" minimized content-css="padding: 0 2rem 2rem 2rem" class="confirmBtn"
+                 style="border-radius: 15px">
+            <h5>CONFIRM AMOUNT TO STAKE</h5>
+            <p>Oracle ID: {{ oracleKey }}</p>
+            <p v-if="unlocked_balance / 1e4 > maxAmount">Max Amount: {{ maxAmount }}</p>
+            <p v-else>Max Amount: {{ (unlocked_balance / 1e4).toLocaleString() }}</p>
+            <tritonField label="Amount">
+                <q-input
+                    v-model="stake_amount"
+                    type="number"
+                    min="0"
+                    :max="maxAmount"
+                    placeholder="0"
+                    hide-underline
+                />
+                <q-btn color="positive" @click="stake_amount = unlocked_balance / 1e4"
+                       :text-color="theme=='dark'?'white':'dark'">Max
+                </q-btn>
+
+            </tritonField>
+
+            <div style="margin-left: auto; margin-right: auto;padding-top: 10px">
+                <q-btn
+                    style="background-color: #005BC6"
+                    class="send-btn"
+                    color="positive" @click="stake(), openedSend = false" label="Confirm Stake"/>
+            </div>
+        </q-modal>
+
     </q-page>
 </template>
 
 <script>
-import { mapState } from "vuex"
+import {mapState} from "vuex"
 import TxList from "components/pools_list"
 import tritonField from "components/triton_field"
 import WalletPassword from "src/mixins/wallet_password"
@@ -125,7 +181,7 @@ import axios from 'axios'
 import VueToggles from 'vue-toggles';
 
 export default {
-    data () {
+    data() {
         return {
             tx_type: "all",
             tx_txid: "",
@@ -134,12 +190,19 @@ export default {
             oracleKey: "",
             oracleAddress: "",
             maxAmount: "",
-            stake_amount: 0,
-            tvl: 0, 
+            stake_amount: "",
+            num_nodes_staked_to: 0,
+            tvl: 0,
+            daily_reward: 0,
+            stake_data: {},
+            staked_pools: [],
             stake_transactions: {},
+            next_unlock: 0,
+            earnings_for_period: 0,
             keys: [],
-            total_staked_amount: 0,
+            total_stake_amount: 0,
             total_xeq_earning_p_d: 0,
+            current_price: 0,
             newTx: {
                 amount: 0,
                 address: "",
@@ -153,14 +216,14 @@ export default {
                 }
             },
             tx_type_options: [
-                { label: "All", value: "all" },
-                { label: "Incoming", value: "in" },
-                { label: "Outgoing", value: "out" },
-                { label: "Pending", value: "all_pending" },
-                { label: "Miner", value: "miner" },
-                { label: "Service Node", value: "snode" },
-                { label: "Stake", value: "stake" },
-                { label: "Failed", value: "failed" },
+                {label: "All", value: "all"},
+                {label: "Incoming", value: "in"},
+                {label: "Outgoing", value: "out"},
+                {label: "Pending", value: "all_pending"},
+                {label: "Miner", value: "miner"},
+                {label: "Service Node", value: "snode"},
+                {label: "Stake", value: "stake"},
+                {label: "Failed", value: "failed"},
             ]
 
         }
@@ -169,18 +232,48 @@ export default {
         theme: state => state.gateway.app.config.appearance.theme,
         tx_list: state => state.gateway.wallet.pools.pool_list,
         unlocked_balance: state => state.gateway.wallet.info.unlocked_balance,
-        info: state => state.gateway.wallet.info
+        info: state => state.gateway.wallet.info,
+        state: state => state,
     }),
 
     components: {
         TxList,
         tritonField
     },
+    mounted() {
+        let stake_data = this.state.gateway.wallet.staker.stake
+        console.log("data", stake_data)
+
+        if (!stake_data) return
+        let user_pools = []
+        this.tx_list.map(item => {
+            stake_data.nodes_staked_to.map(node => {
+                if (item.service_node_pubkey == node) {
+                    user_pools.push(item)
+                }
+            })
+        })
+        this.staked_pools = user_pools
+        fetch("https://api.coingecko.com/api/v3/coins/triton?tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false\n")
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.market_data.current_price.usd)
+                this.current_price = data.market_data.current_price.usd
+                this.$forceUpdate()
+            });
+        this.stake_data = stake_data
+        this.total_stake_amount = stake_data.total_staked_amount
+        this.num_nodes_staked_to = stake_data.total_nodes_staked_to
+        this.next_unlock = stake_data.lowest_unlock_time_by_block
+        this.daily_reward = (720 / stake_data.total_nodes) * (stake_data.reward) * ((stake_data.total_staked_amount / stake_data.total_nodes_staked_to) / stake_data.avg_staking_req)
+        this.earnings_for_period = this.daily_reward * ((stake_data.avg_unlock_time - stake_data.avg_reg_height) / 720)
+        console.log(this.daily_reward, this.earnings_for_period)
+    },
     watch: {
         stake_status: {
-            handler(val, old){
-                if(val.code == old.code) return
-                switch(this.stake_status.code) {
+            handler(val, old) {
+                if (val.code == old.code) return
+                switch (this.stake_status.code) {
                     case 0:
                         this.$q.notify({
                             type: "positive",
@@ -207,40 +300,37 @@ export default {
         },
     },
     methods: {
-    
-    isFull: function(item) {
-        return item.total_contributed < item.staking_requirement;
-    },
-    myShare: function (contrib) {
-        let sum_of_my_stake = 0;
-        for (let i = 0; i < contrib.length;i++)
-        {
-            if (this.info.address == contrib[i].address) {
-                sum_of_my_stake += contrib[i].amount;
-                // if (this.stake_transactions[key] == undefined) {
-                //     this.stake_transactions[key] = contrib[i].amount;
-                //     this.keys.push_back(key);
-                // }
+        isFull: function (item) {
+            return item.total_contributed < item.staking_requirement;
+        },
+        myShare: function (contrib) {
+            let sum_of_my_stake = 0;
+            for (let i = 0; i < contrib.length; i++) {
+                if (this.info.address == contrib[i].address) {
+                    sum_of_my_stake += contrib[i].amount;
+                    // if (this.stake_transactions[key] == undefined) {
+                    //     this.stake_transactions[key] = contrib[i].amount;
+                    //     this.keys.push_back(key);
+                    // }
+                }
             }
-        }
-        return sum_of_my_stake;
-    },
-    isMine: function (contrib) {
+            return sum_of_my_stake;
+        },
+        isMine: function (contrib) {
 
-        for (let i = 0; i < contrib.length;i++)
-        {
-            if (this.info.address == contrib[i].address)
-                return true;
-        }
+            for (let i = 0; i < contrib.length; i++) {
+                if (this.info.address == contrib[i].address)
+                    return true;
+            }
 
-        return false;
-    },
-    conversionFromXtri: function (amount) {
+            return false;
+        },
+        conversionFromXtri: function (amount) {
             //xtri price in sats variable
             let sats;
             //btc prices in differnt currencies
             let currentPrice;
-            let prices=[];
+            let prices = [];
             let dollar_amount = 0;
             //getting xtri price in sats from Trade Ogre
             axios.get(`https://tradeogre.com/api/v1/ticker/BTC-XEQ`).then(res => {
@@ -274,19 +364,28 @@ export default {
                     currentPrice = prices[0];
 
                     //Do conversion with current currency
-                    this.tvl = ((amount*currentPrice)*sats).toFixed(0);
+                    this.tvl = ((amount * currentPrice) * sats).toFixed(0);
                 })
             });
 
             return this.tvl;
         },
-        getTVL: function (){
+        getLockTime(height) {
+            if ((height + 20160) - this.info.height < 30) {
+                return Math.round(((height + 20160) - this.info.height) / 2).toString() + " minutes"
+            } else if ((height + 20160) - this.info.height < 720) {
+                return Math.round(((height + 20160) - this.info.height) / 30).toString() + " hours"
+            } else {
+                return Math.round(((height + 20160) - this.info.height) / 720).toString() + " days"
+            }
+        },
+        getTVL: function () {
             let sum_xeq_staked = 0
-            for(var i = 0; i < this.tx_list.length;i++){
+            for (var i = 0; i < this.tx_list.length; i++) {
                 sum_xeq_staked += this.tx_list[i].total_contributed
             }
 
-            return sum_xeq_staked /1e4
+            return sum_xeq_staked / 1e4
         },
         handleClick: function (key, address, maxAmount) {
             this.oracleKey = key
@@ -295,7 +394,7 @@ export default {
             this.openedSend = true
         },
         stake: function (key, address, amount) {
-                this.showPasswordConfirmation({
+            this.showPasswordConfirmation({
                 title: "Stake",
                 noPasswordMessage: "Do you want to stake?",
                 ok: {
@@ -312,7 +411,7 @@ export default {
                 })
 
                 this.$gateway.send("wallet", "stake", {
-                     password: password, amount: this.stake_amount, key: this.oracleKey,
+                    password: password, amount: this.stake_amount, key: this.oracleKey,
                     destination: this.info.address,
                 })
             }).catch(() => {
