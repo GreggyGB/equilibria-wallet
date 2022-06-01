@@ -9,6 +9,7 @@ const os = require("os")
 const fs = require("fs-extra")
 const path = require("upath")
 const objectAssignDeep = require("object-assign-deep")
+const execSync = require('child_process').execSync;
 
 export class Backend {
     constructor(mainWindow) {
@@ -81,7 +82,12 @@ export class Backend {
         }
 
         // Default values
-        let port = JSON.parse(fs.readFileSync("port.json", "utf8")).port
+        let port
+        try {
+            port = JSON.parse(fs.readFileSync("port.json", "utf8")).port
+        } catch {
+            port = 10231
+        }
         this.defaults = {
             daemons: objectAssignDeep({}, daemons),
             app: {
@@ -538,12 +544,17 @@ export class Backend {
                         })
                     }
 
-                    this.daemon.start(this.config_data).then(() => {
+                    this.daemon.start(this.config_data).then(async () => {
                         this.send("set_app_data", {
                             status: {
                                 code: 6 // Starting wallet
                             }
                         })
+
+                        try {
+                            await execSync('kill -9 $(lsof -ti:18082)', { encoding: 'utf-8' });
+                        } catch (err) {}
+
 
                         this.walletd.start(this.config_data).then(() => {
                             this.send("set_app_data", {
