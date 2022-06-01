@@ -81,7 +81,21 @@
     </template>
 
     <q-collapsible label="Advanced Options" header-class="q-mt-sm non-selectable row reverse advanced-options-label">
+            <div class="row justify-between q-mb-md">
+                <div><q-radio v-model="config_daemon.type" val="remote" label="Remote Daemon Only" /></div>
+                <div><q-radio v-model="config_daemon.type" val="local_remote" label="Local + Remote Daemon" /></div>
+                <div><q-radio v-model="config_daemon.type" val="local" label="Local Daemon Only" /></div>
+            </div>
 
+            <p v-if="config_daemon.type == 'local_remote'">
+                Get started quickly with this default option. Wallet will download the full blockchain, but use a remote node while syncing.
+            </p>
+            <p v-if="config_daemon.type == 'local'">
+                Full security, wallet will download the full blockchain. You will not be able to transact until sync is completed.
+            </p>
+            <p v-if="is_remote">
+                Less security, wallet will connect to a remote node to make all transactions.
+            </p>
         <div class="col q-mt-md pt-sm">
             <tritonField label="Data Storage Path" disable-hover>
                 <q-input v-model="config.app.data_dir" disable :dark="theme=='dark'" hide-underline/>
