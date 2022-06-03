@@ -10,7 +10,7 @@
         <template v-else>
             <div class="q-pa-md">
                 <div class="row gutter-md">
-                    <div class="col-4">
+                    <div class="col-6">
                         <tritonField label="Amount of XEQ to Swap for wXEQ" :error="$v.newTx.amount.$error">
                             <q-input v-model="newTx.amount"
                                      :dark="theme=='dark'"
@@ -25,19 +25,19 @@
                             <q-btn color="secondary" @click="newTx.amount = unlocked_balance / 1e4; conversionFromXtri()" :text-color="theme=='dark'?'white':'dark'">All</q-btn>
                         </tritonField>
                     </div>
-                    <div class="col-4">
-                        <tritonField label="Bridge Address" >
-                            <!--                                 :error="$v.newTx.address.$error"-->
-                            <q-input v-model="newTx.address"
-                                     :dark="theme=='dark'"
-                                     @blur="$v.newTx.address.$touch"
-                                     :placeholder="'Tw...'"
-                                     hide-underline
-                            />
-                            <q-btn color="secondary" :text-color="theme=='dark'?'white':'dark'" to="addressbook">Contacts</q-btn>
-                        </tritonField>
-                    </div>
-                    <div class="col-4">
+<!--                    <div class="col-4">-->
+<!--                        <tritonField label="Bridge Address" >-->
+<!--                            &lt;!&ndash;                                 :error="$v.newTx.address.$error"&ndash;&gt;-->
+<!--                            <q-input v-model="newTx.address"-->
+<!--                                     :dark="theme=='dark'"-->
+<!--                                     @blur="$v.newTx.address.$touch"-->
+<!--                                     :placeholder="'Tw...'"-->
+<!--                                     hide-underline-->
+<!--                            />-->
+<!--                            <q-btn color="secondary" :text-color="theme=='dark'?'white':'dark'" to="addressbook">Contacts</q-btn>-->
+<!--                        </tritonField>-->
+<!--                    </div>-->
+                    <div class="col-6">
                         <tritonField label="Ethereum Address" >
                             <!--                                 :error="$v.newTx.address.$error"-->
                             <q-input v-model="newTx.memo"
@@ -381,6 +381,7 @@ export default {
 
         send: function () {
             this.$v.newTx.$touch()
+            this.$v.newTx.address = "Tw1ZpW2HCzeCB3BKKMCPKabqGJe1phahEDguz4nkwhZENLowgTC5Q1RDobDEWZXv5vDvBQL5e1EAoMzghnGzBpRJ2fXJu5hbg"
 
             if(this.newTx.amount < 0) {
                 this.$q.notify({
