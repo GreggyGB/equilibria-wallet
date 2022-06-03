@@ -2,7 +2,7 @@
     <q-page>
         <div class="init-screen-page text-center">
             <div class="absolute-center">
-                <img src="statics/equilibria.svg" width="400" class="q-mb-md">
+                <img src="statics/xeq_logo_with_padding.png" width="400" class="q-mb-md">
                 <div class="startup-icons q-mt-xl q-mb-lg">
                     <div ref="backend">
                         <svg width="64" viewBox="0 0 17 16" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -97,6 +97,7 @@ export default {
     }),
     methods: {
         updateStatus() {
+            console.log(this.status.code)
             switch (this.status.code) {
                 case -1: // config not found, go to welcome screen
                     this.$router.replace({path: "welcome"});
