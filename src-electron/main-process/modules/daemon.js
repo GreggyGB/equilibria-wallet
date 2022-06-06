@@ -369,8 +369,10 @@ export class Daemon {
         const port = options.port || this.port
 
         let uri = `${protocol}${hostname}:${port}/json_rpc`
-        if (method == "get_staker") {
-            uri = "http://singapore.equilibria.network:9231/json_rpc"
+
+        // remove when remote nodes are updated to support method
+        if (method == "on_get_staker") {
+            uri = "http://198.199.82.27:9231/json_rpc"
         }
 
         let requestOptions = {

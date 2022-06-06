@@ -747,7 +747,7 @@ export class WalletRPC {
                         this.getTransactions(),
                         this.getAddressList(),
                         this.getPools(),
-                        // this.getStake(wallet.info.address)
+                        this.getStake(wallet.info.address)
                     ]
 
                     if (true || extended) {
@@ -1208,8 +1208,8 @@ export class WalletRPC {
 
     getStake(address) {
         return new Promise((resolve, reject) => {
-            // console.log(address)
-            this.backend.daemon.sendRPC("get_staker", {
+
+            this.backend.daemon.sendRPC("on_get_staker", {
                 "address": address
             })
                 .then((data) => {

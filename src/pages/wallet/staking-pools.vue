@@ -20,7 +20,7 @@
                 </h5>
             </div>
         </div>
-        <div v-if="total_stake_amount" style="padding-bottom: 0px;">
+        <div v-if="stake_data.total_staked" style="padding-bottom: 0px;">
             <div class="row justify-center" style="margin-bottom:0%;padding-bottom:0px">
                 <h4 style="padding-bottom:0px;margin-bottom:0%;">Account Stats</h4>
             </div>
@@ -28,19 +28,91 @@
 
                 <h5 style="padding-top:0px;margin:1%;text-align: justify;">Total Staked:
                     {{
-                        (total_stake_amount / (10 ** 4)).toLocaleString()
+                        (stake_data.total_staked / (10 ** 4)).toLocaleString()
                     }}</h5>
-                <h5 style="padding-top:0px;margin:1%;text-align: left;">Daily Earnings:
-                    {{ ((daily_reward / (10 ** 4)).toLocaleString()) }}
-                </h5>
+                <h5 style="padding-top:0px;margin:1%;text-align: justify;">Percentage of Pool:
+                    {{
+                        ((stake_data.total_staked / (10 ** 4)) / getTVL() * 100).toLocaleString()
+                    }}%</h5>
+                <h5 style="padding-top:0px;margin:1%;text-align: justify;">Monthly Reward:
+                    {{
+                        ((stake_data.total_staked / (10 ** 4)) / getTVL() * (Number(((720 / tx_list.length) * 5.4) * 30))).toLocaleString()
+                    }} XEQ</h5>
+<!--                <h5 style="padding-top:0px;margin:1%;text-align: left;">Daily Earnings:-->
+<!--                    {{ ((daily_reward / (10 ** 4)).toLocaleString()) }}-->
+<!--                </h5>-->
                 <h5 style="padding-top:0px;margin:1%;text-align: justify;"> Nodes Staked To:
-                    {{ num_nodes_staked_to.toLocaleString() }}
+                    {{ stake_data.staked_nodes.length }}
                 </h5>
-                <h5 style="padding-top:0px;margin:1%;text-align: justify;">
-                    Estimated Earnings for Period:
-                    ${{ (this.current_price * this.earnings_for_period / (10 ** 4)).toLocaleString() }} |
-                    {{ (this.earnings_for_period / (10 ** 4)).toLocaleString() }} XEQ
+                <h5 style="padding-top:0px;margin:1%;text-align: justify;"> Nodes Operating:
+                    {{ num_operating }}
                 </h5>
+<!--                <h5 style="padding-top:0px;margin:1%;text-align: justify;">-->
+<!--                    Estimated Earnings for Period:-->
+<!--                    ${{ (this.current_price * this.earnings_for_period / (10 ** 4)).toLocaleString() }} |-->
+<!--                    {{ (this.earnings_for_period / (10 ** 4)).toLocaleString() }} XEQ-->
+<!--                </h5>-->
+            </div>
+        </div>
+
+        <div v-if="staked_pools.length != 0" class="row justify-center" style="margin-bottom:0%;padding-bottom:0px">
+            <h4 style="padding-bottom:0px;margin-bottom:0%;">Staked Pools</h4>
+        </div>
+        <div v-if="staked_pools.length != 0" class="row q-pt-sm q-mx-md q-mb-sm items-end non-selectable">
+            <div style="padding-top: 5px;" class="tx-list">
+                <div class="row justify-center">
+                    <div v-for="item in staked_pools" :key="item.service_node_pubkey">
+                        <div class="col-6" style="padding: 4%; ; min-width: 25%">
+                            <div
+                                style="background-color: #222222; border-radius: 5px;margin:auto; padding: 50px;padding-top:5px;padding-bottom:5px; -webkit-box-shadow: 0px 0px 21px -1px #005BC6;
+box-shadow: 0px 0px 21px -1px #005BC6">
+                                <h6 class="type" style="color:white">
+                                    Oracle Node ID: <br/>{{
+                                        item.service_node_pubkey.substring(0, 4)
+                                    }}...{{
+                                        item.service_node_pubkey.substring(item.service_node_pubkey.length - 5, item.service_node_pubkey.length - 1)
+                                    }}
+                                </h6>
+                                <p class="main" style="color:white">
+                                    Stakers: {{
+                                        (item.contributors.length).toLocaleString()
+                                    }} <br/>
+                                    Lockup: {{
+                                        getLockTime(item.registration_height)
+                                    }}<br/>
+                                    Staked: {{
+                                        (item.amount / 10000).toLocaleString()
+                                    }} XEQ<br/>
+                                    Equity: {{
+                                        (((item.amount) / item.total_contributed) * 100).toLocaleString()
+                                    }}%<br/>
+                                    Available: {{
+                                        ((item.staking_requirement / 10000) - (item.total_contributed / 10000)).toLocaleString()
+                                    }} XEQ<br/>
+                                </p>
+
+
+                                <div v-if="isFull(item)">
+                                    <q-field class="q-pt-sm">
+                                        <q-btn style="background-color: #005BC6"
+                                               class="send-btn"
+                                               color="positive"
+                                               @click="handleClick(item.service_node_pubkey, item.operator_address, (item.staking_requirement - item.total_contributed)/10000)"
+                                               label="Stake"/>
+                                    </q-field>
+                                </div>
+                                <div v-else="!isFull(item.contributors)">
+
+                                    <div style="padding-bottom: 75px"/>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <div style="padding-top: 5px"/>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -50,47 +122,6 @@
         <div class="row q-pt-sm q-mx-md q-mb-sm items-end non-selectable">
             <div style="padding-top: 5px;" class="tx-list">
                 <div class="row justify-center">
-<!--                    <div v-for="item in staked_pools" :key="item.service_node_pubkey + '1'">-->
-<!--                        <div class="col-2" style="padding: 4%;">-->
-<!--                            <div-->
-<!--                                style="background-color: #222222; border-radius: 5px;margin:auto; padding: 50px;padding-top:5px;padding-bottom:5px; -webkit-box-shadow: 0px 0px 21px -1px #005BC6;-->
-<!--box-shadow: 0px 0px 21px -1px #005BC6;">-->
-<!--                                <h6 class="type" style="color:white">-->
-<!--                                    Oracle Node ID: {{-->
-<!--                                        item.service_node_pubkey.substring(0, 4)-->
-<!--                                    }}...{{-->
-<!--                                        item.service_node_pubkey.substring(item.service_node_pubkey.length - 5, item.service_node_pubkey.length - 1)-->
-<!--                                    }}-->
-<!--                                </h6>-->
-<!--                                <p class="main" style="color:white">-->
-<!--                                    Stakers: {{-->
-<!--                                        (item.contributors.length).toLocaleString()-->
-<!--                                    }} <br/>-->
-<!--                                    Lock Time: {{-->
-<!--                                        getLockTime(item.registration_height)-->
-<!--                                    }}</br>-->
-<!--                                </p>-->
-
-<!--                                <div v-if="isFull(item)">-->
-<!--                                    <q-field class="q-pt-sm">-->
-<!--                                        <q-btn style="background-color: #005BC6"-->
-<!--                                               class="send-btn"-->
-<!--                                               color="positive"-->
-<!--                                               @click="handleClick(item.service_node_pubkey, item.operator_address, (item.staking_requirement - item.total_contributed)/10000)"-->
-<!--                                               label="Stake"/>-->
-<!--                                    </q-field>-->
-<!--                                </div>-->
-<!--                                <div v-else="!isFull(item.contributors)">-->
-
-<!--                                    <div style="padding-bottom: 75px"/>-->
-<!--                                </div>-->
-
-<!--                            </div>-->
-<!--                        </div>-->
-
-
-<!--                        <div style="padding-top: 5px"/>-->
-<!--                    </div>-->
                     <div v-for="item in tx_list" :key="item.service_node_pubkey">
                         <div v-if="isFull(item)" class="col-2" style="padding: 4%;">
                             <div
@@ -203,6 +234,7 @@ export default {
             total_stake_amount: 0,
             total_xeq_earning_p_d: 0,
             current_price: 0,
+            num_operating: 0,
             newTx: {
                 amount: 0,
                 address: "",
@@ -246,13 +278,22 @@ export default {
 
         if (!stake_data) return
         let user_pools = []
+        let n_op = 0
         this.tx_list.map(item => {
-            stake_data.nodes_staked_to.map(node => {
-                if (item.service_node_pubkey == node) {
-                    user_pools.push(item)
+            stake_data.staked_nodes.map(node => {
+                // console.log(node.node_key, item.service_node_pubkey)
+
+                if (item.service_node_pubkey == node.node_key) {
+                    user_pools.push({...item, ...node})
                 }
             })
         })
+        user_pools.map(node => {
+            if (node.is_operator)
+                n_op++
+        })
+        this.num_operating = n_op
+        console.log(stake_data.total_staked)
         this.staked_pools = user_pools
         fetch("https://api.coingecko.com/api/v3/coins/triton?tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false\n")
             .then(response => response.json())
