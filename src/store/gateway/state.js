@@ -10,6 +10,7 @@ export default {
         },
         pending_config: {
         },
+        selected_node: "",
         remotes: {
         }
     },
@@ -98,6 +99,7 @@ export default {
         },
         connections: [],
         bans: [],
-        tx_pool_backlog: []
+        tx_pool_backlog: [],
+        selected_node: ""
     }
 }

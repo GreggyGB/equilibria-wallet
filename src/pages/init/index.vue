@@ -94,6 +94,9 @@ export default {
     },
     computed: mapState({
         status: state => state.gateway.app.status,
+        remote: state => state.gateway.app.selected_node,
+        app: state => state.gateway.app
+
     }),
     methods: {
         updateStatus() {
@@ -113,14 +116,22 @@ export default {
                     this.$refs.wallet.className = "grey"
                     break;
                 case 2:
-                    this.message = "Loading settings and finding fastest remote node"
+                    if (this.app.config.daemons.mainnet.type == "local") {
+                        this.message = "Loading settings"
+                    } else {
+                        this.message = "Loading settings and finding fastest remote node"
+                    }
                     this.$refs.backend.className = "solid"
                     this.$refs.settings.className = "pulse"
                     this.$refs.daemon.className = "grey"
                     this.$refs.wallet.className = "grey"
                     break;
                 case 3:
-                    this.message = "Starting daemon"
+                    if (this.app.config.daemons.mainnet.type == "local") {
+                        this.message = "Connecting to local daemon"
+                    } else {
+                        this.message = "Connecting to " + this.remote
+                    }
                     this.$refs.backend.className = "solid"
                     this.$refs.settings.className = "solid2"
                     this.$refs.daemon.className = "pulse"

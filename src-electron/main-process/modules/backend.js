@@ -353,6 +353,8 @@ export class Backend {
             let host = ""
             let fastest_time = 1000000
             for (const i in this.remotes) {
+                if (this.config_data.daemons.mainnet.type == "local")
+                    break
                 let options = {
                     method: "POST",
                     json: {
@@ -382,6 +384,7 @@ export class Backend {
             if (port != "") {
                 this.config_data.daemons.mainnet.remote_host = host
                 this.config_data.daemons.mainnet.remote_port = port
+
             }
 
 
@@ -407,7 +410,8 @@ export class Backend {
 
             this.send("set_app_data", {
                 config: this.config_data,
-                pending_config: this.config_data
+                pending_config: this.config_data,
+                selected_node: `${host}:${port}`
             })
 
             // Make the wallet dir
