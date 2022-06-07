@@ -44,7 +44,7 @@
 
                     </div>
                     <div class="col-4">
-                        <tritonField label="Ethereum Address">
+                        <tritonField v-bind:label="selectedNetwork.name + ' Address'">
                             <!--                                 :error="$v.newTx.address.$error"-->
                             <q-input v-model="newTx.memo"
                                      :dark="theme=='dark'"
