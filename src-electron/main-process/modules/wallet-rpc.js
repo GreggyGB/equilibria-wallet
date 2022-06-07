@@ -655,6 +655,12 @@ export class WalletRPC {
             this.wallet_state.name = filename
             this.wallet_state.open = true
 
+            this.height_check = {
+                address: 0,
+                pools: 0,
+                stake: 0,
+                txs: 0
+            }
             this.startHeartbeat()
 
             // Check if we have a view only wallet by querying the spend key
