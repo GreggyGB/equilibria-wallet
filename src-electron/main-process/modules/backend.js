@@ -528,7 +528,7 @@ export class Backend {
                     return
                 }
 
-                this.daemon.checkVersion().then((version) => {
+                this.daemon.checkVersion().then(async (version) => {
                     if (version) {
                         this.send("set_app_data", {
                             status: {
@@ -548,6 +548,38 @@ export class Backend {
                         })
                     }
 
+                    async function killPort() {
+                        return new Promise(async ok => {
+                            try {
+                                await execSync('kill -9 $(lsof -ti:18082)', { encoding: 'utf-8' });
+                            } catch (err) {}
+                            try {
+                                let e = await execSync('netstat -ano | findstr :18082', { encoding: 'utf-8' });
+                                e = e.replace(/\s+/g, ' ').trim()
+                                let pid = e.split(" ")
+                                console.log(pid)
+
+                                for (let i = 4; i < pid.length; i += 5) {
+                                    console.log("Check")
+                                    if (Number(pid[i])) {
+                                        try {
+                                            await execSync(`taskkill /PID ${pid[i]} /F `, { encoding: 'utf-8' });
+                                            break
+                                        } catch (err) {
+                                            console.log("kill", err)
+                                        }
+                                    }
+                                }
+                            } catch (err) {
+                                console.log(err)
+                            }
+                            ok()
+                        })
+                    }
+                    await killPort()
+
+
+
                     this.daemon.start(this.config_data).then(async () => {
                         this.send("set_app_data", {
                             status: {
@@ -555,10 +587,7 @@ export class Backend {
                             }
                         })
 
-                        try {
-                            await execSync('kill -9 $(lsof -ti:18082)', { encoding: 'utf-8' });
-                        } catch (err) {}
-
+                        await killPort()
 
                         this.walletd.start(this.config_data).then(() => {
                             this.send("set_app_data", {
