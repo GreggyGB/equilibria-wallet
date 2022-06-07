@@ -59,10 +59,10 @@
             <h4 style="padding-bottom:0px;margin-bottom:0%;">Staked Pools</h4>
         </div>
         <div v-if="staked_pools.length != 0" class="row q-pt-sm q-mx-md q-mb-sm items-end non-selectable">
-            <div style="padding-top: 5px;" class="tx-list">
+            <div style="padding-top: 5px; margin-left: auto; margin-right: auto" class="tx-list" >
                 <div class="row justify-center">
-                    <div v-for="item in staked_pools" :key="item.service_node_pubkey">
-                        <div class="col-6" style="padding: 4%; ; min-width: 25%">
+                    <div v-for="item in staked_pools" :key="item.service_node_pubkey" >
+                        <div class="col-2" style="padding: 4%; ">
                             <div
                                 style="background-color: #222222; border-radius: 5px;margin:auto; padding: 50px;padding-top:5px;padding-bottom:5px; -webkit-box-shadow: 0px 0px 21px -1px #005BC6;
 box-shadow: 0px 0px 21px -1px #005BC6">
