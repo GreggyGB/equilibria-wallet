@@ -16,12 +16,12 @@
             />
         </tritonField>
         <q-field class="q-pt-sm">
-            <q-btn color="primary" @click="register()" label="Register service node" :disabled="registration_status.sending"/>
+            <q-btn color="secondary" @click="register()" label="Register service node" :disabled="registration_status.sending"/>
         </q-field>
     </div>
 
     <q-inner-loading :visible="registration_status.sending" :dark="theme=='dark'">
-        <q-spinner color="primary" :size="30" />
+        <q-spinner color="secondary" :size="30" />
     </q-inner-loading>
 </div>
 </template>

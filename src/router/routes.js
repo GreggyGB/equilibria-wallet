@@ -117,7 +117,7 @@ export default [
                     import("pages/wallet/addressbook")
             },
             {
-                path: "servicenode",
+                path: "service-node",
                 component: () =>
                     import("pages/wallet/service-node")
             }

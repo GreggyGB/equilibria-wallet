@@ -157,6 +157,7 @@ export default {
             newTx: {
                 amount: 0,
                 address: "",
+                network: 0,
                 payment_id: "",
                 priority: 0,
                 currency: 0,
