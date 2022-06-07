@@ -24,6 +24,7 @@ export class WalletRPC {
             stake: 0,
             txs: 0
         }
+        this.confirmed_stake = false
         this.wallet_state = {
             open: false,
             name: "",
@@ -280,6 +281,9 @@ export class WalletRPC {
 
         case "stake":
             this.stake(params.password, params.amount, params.key, params.destination)
+            break
+        case "stake_confirm":
+            this.confirmStake()
             break
         case "sweepAll":
             this.sweepAll(params.password)
@@ -789,6 +793,10 @@ export class WalletRPC {
         })
     }
 
+    confirmStake() {
+     this.confirmed_stake = true
+    }
+
     stake (password, amount, service_node_key, destination) {
         crypto.pbkdf2(password, this.auth[2], 1000, 64, "sha512", (err, password_hash) => {
             if (err) {
@@ -816,7 +824,7 @@ export class WalletRPC {
                 service_node_key,
                 do_not_relay: true,
                 get_tx_metadata: true
-            }).then((data) => {
+            }).then(async (data) => {
                 if (data.hasOwnProperty("error")) {
                     let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
                     this.sendGateway("show_notification", {
@@ -835,38 +843,47 @@ export class WalletRPC {
                 if(data.result)
                 {
                     console.log("Fee: " + data.result.fee_list[0] / 1e4)
-                    this.sendGateway("show_notification", {
-                        type: "positive",
-                        message: "Fee: " + data.result.fee_list[0] / 1e4,
-                        timeout: 2000
+                    this.sendGateway("set_tx_status", {
+                        code: 0,
+                        message: "Fee " + ((amount / 1e4).toLocaleString() + " | Burn: " + ( data.result.fee_list[0] / 1e4)).toLocaleString(),
+                        sending: false
                     })
-
-                    //show dialog for confirmation (Yes/No)
-                    //Staking to (node key)
-                    //Amount: amount
-                    //Burn: amount * .001
-                    //Fee: fee - burn
-
-                    this.sendRPC("relay_tx", {"hex":data.result.tx_metadata_list[0]}).then((data_finalize)=> {
-                        if (data.hasOwnProperty("error")) {
-                            let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
-                            this.sendGateway("set_tx_status", {
-                                code: -1,
-                                message: error,
-                                sending: false
-                            })
-                            return
+                    let t = new Date().getTime()
+                        while (!this.confirmed_stake) {
+                            await new Promise(r => setTimeout(r, 25));
+                            let l = new Date().getTime()
+                            if (l - t > 30000) {
+                                this.sendGateway("show_notification", {
+                                    type: "negative",
+                                    message: "User took too long",
+                                    timeout: 2000
+                                })
+                                return
+                            }
                         }
+                        console.log("CONFIRMED")
 
-                        if(data_finalize.result.tx_hash)
-                            this.saveTxNotes(data_finalize.result.tx_hash, note)
 
-                        this.sendGateway("show_notification", {
-                            type: "positive",
-                            message: "Staked " + (amount / 1e4).toLocaleString() + " XEQ to: " + service_node_key,
-                            timeout: 2000
-                        })
-                    })
+                    // this.sendRPC("relay_tx", {"hex":data.result.tx_metadata_list[0]}).then((data_finalize)=> {
+                    //     if (data.hasOwnProperty("error")) {
+                    //         let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
+                    //         this.sendGateway("set_tx_status", {
+                    //             code: -1,
+                    //             message: error,
+                    //             sending: false
+                    //         })
+                    //         return
+                    //     }
+                    //
+                    //     if(data_finalize.result.tx_hash)
+                    //         this.saveTxNotes(data_finalize.result.tx_hash, note)
+                    //
+                    //     this.sendGateway("show_notification", {
+                    //         type: "positive",
+                    //         message: "Staked " + (amount / 1e4).toLocaleString() + " XEQ to: " + service_node_key,
+                    //         timeout: 2000
+                    //     })
+                    // })
                 }
 
             })
@@ -1280,7 +1297,6 @@ export class WalletRPC {
     }
 
     async checkHeight(func_name, height) {
-        console.log(func_name, height)
         return new Promise(ok => {
             if (this.height_check[func_name] == height) {
                 ok(false)

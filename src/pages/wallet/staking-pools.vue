@@ -270,6 +270,7 @@ export default {
     computed: mapState({
         theme: state => state.gateway.app.config.appearance.theme,
         tx_list: state => state.gateway.wallet.pools.pool_list,
+        tx_status: state => state.gateway.tx_status,
         unlocked_balance: state => state.gateway.wallet.info.unlocked_balance,
         info: state => state.gateway.wallet.info,
         state: state => state,
@@ -341,6 +342,37 @@ export default {
                             timeout: 10000,
                             message: this.stake_status.message
                         })
+                        break;
+                }
+            },
+            deep: true
+        },
+        tx_status: {
+            handler(val, old){
+                // if(val.code == old.code) return
+                switch(this.tx_status.code) {
+                    case 0:
+                        this.$q.dialog({
+                            title: "Confirm Fee",
+                            message: this.tx_status.message,
+                            ok: {
+                                label: "OK",
+                                color: "positive"
+
+                            },
+                            cancel: {
+                                flat: true,
+                                label: "CANCEL",
+                                color: "red"
+                            }
+                        }).then(() => {
+                            this.$gateway.send("wallet", "stake_confirm", {})
+                        }).catch(() => {
+
+                        })
+                        break;
+                    case -1:
+
                         break;
                 }
             },
