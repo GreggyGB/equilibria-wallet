@@ -18,6 +18,12 @@ export class WalletRPC {
         this.id = 0
         this.net_type = "mainnet"
         this.heartbeat = null
+        this.height_check = {
+            address: 0,
+            pools: 0,
+            stake: 0,
+            txs: 0
+        }
         this.wallet_state = {
             open: false,
             name: "",
@@ -744,10 +750,10 @@ export class WalletRPC {
 
                     // if balance has recently changed, get updated list of transactions and used addresses
                     let actions = [
-                        this.getTransactions(),
-                        this.getAddressList(),
-                        this.getPools(),
-                        this.getStake(wallet.info.address)
+                        this.getTransactions(wallet.info.height),
+                        this.getAddressList(wallet.info.height),
+                        this.getPools(wallet.info.height),
+                        this.getStake(wallet.info.address, wallet.info.height)
                     ]
 
                     if (true || extended) {
@@ -823,13 +829,18 @@ export class WalletRPC {
                 if(data.result)
                 {
                     console.log("Fee: " + data.result.fee_list[0] / 1e4)
+                    this.sendGateway("show_notification", {
+                        type: "positive",
+                        message: "Fee: " + data.result.fee_list[0] / 1e4,
+                        timeout: 2000
+                    })
 
                     //show dialog for confirmation (Yes/No)
                     //Staking to (node key)
                     //Amount: amount
                     //Burn: amount * .001
                     //Fee: fee - burn
-                    
+
                     this.sendRPC("relay_tx", {"hex":data.result.tx_metadata_list[0]}).then((data_finalize)=> {
                         if (data.hasOwnProperty("error")) {
                             let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
@@ -994,7 +1005,7 @@ export class WalletRPC {
                     //Sending to (dest address)
                     //Amount: amount
                     //Fee: fee
-                    
+
                     this.sendRPC("relay_tx", {"hex":data.result.tx_metadata_list[0]}).then((data_finalize)=> {
                         if (data.hasOwnProperty("error")) {
                             let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
@@ -1158,8 +1169,13 @@ export class WalletRPC {
         })
     }
 
-    getAddressList () {
-        return new Promise((resolve, reject) => {
+    async getAddressList (height) {
+        return new Promise(async (resolve, reject) => {
+            let check = await this.checkHeight("address", height)
+            if (!check) {
+                reject()
+                return
+            }
             Promise.all([
                 this.sendRPC("get_address", { account_index: 0 }),
                 this.sendRPC("getbalance", { account_index: 0 })
@@ -1234,8 +1250,13 @@ export class WalletRPC {
         })
     }
 
-    getPools () {
-        return new Promise((resolve, reject) => {
+    async getPools (height) {
+        return new Promise(async (resolve, reject) => {
+            let check = await this.checkHeight("pools", height)
+            if (!check) {
+                reject()
+                return
+            }
             this.backend.daemon.sendRPC("get_service_nodes")
                 .then((data) => {
                     let wallet = {
@@ -1252,9 +1273,26 @@ export class WalletRPC {
         })
     }
 
-    getStake(address) {
-        return new Promise((resolve, reject) => {
+    async checkHeight(func_name, height) {
+        console.log(func_name, height)
+        return new Promise(ok => {
+            if (this.height_check[func_name] == height) {
+                ok(false)
+            } else {
+                this.height_check[func_name] = height
+                ok(true)
+            }
+        })
+    }
 
+    async getStake(address, height) {
+        return new Promise(async (resolve, reject) => {
+            let check = await this.checkHeight("stake", height)
+            if (!check) {
+                reject()
+                console.log("Skipped Heartbeat")
+                return
+            }
             this.backend.daemon.sendRPC("on_get_staker", {
                 "address": address
             })
@@ -1273,8 +1311,13 @@ export class WalletRPC {
         })
     }
 
-    getTransactions () {
-        return new Promise((resolve, reject) => {
+    async getTransactions (height) {
+        return new Promise(async (resolve, reject) => {
+            let check = await this.checkHeight("txs", height)
+            if (!check) {
+                reject()
+                return
+            }
             this.sendRPC("get_transfers", {
                 in: true,
                 out: true,
