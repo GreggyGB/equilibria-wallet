@@ -10,7 +10,7 @@
         <template v-else>
             <div class="q-pa-md">
                 <div class="row gutter-md">
-                    <div class="col-6">
+                    <div class="col-4">
                         <tritonField label="Amount of XEQ to Swap for wXEQ" :error="$v.newTx.amount.$error">
                             <q-input v-model="newTx.amount"
                                      :dark="theme=='dark'"
@@ -22,23 +22,29 @@
                                      hide-underline
                                      @change.native="conversionFromXtri()"
                             />
-                            <q-btn color="secondary" @click="newTx.amount = unlocked_balance / 1e4; conversionFromXtri()" :text-color="theme=='dark'?'white':'dark'">All</q-btn>
+                            <q-btn color="secondary"
+                                   @click="newTx.amount = unlocked_balance / 1e4; conversionFromXtri()"
+                                   :text-color="theme=='dark'?'white':'dark'">All
+                            </q-btn>
                         </tritonField>
                     </div>
-<!--                    <div class="col-4">-->
-<!--                        <tritonField label="Bridge Address" >-->
-<!--                            &lt;!&ndash;                                 :error="$v.newTx.address.$error"&ndash;&gt;-->
-<!--                            <q-input v-model="newTx.address"-->
-<!--                                     :dark="theme=='dark'"-->
-<!--                                     @blur="$v.newTx.address.$touch"-->
-<!--                                     :placeholder="'Tw...'"-->
-<!--                                     hide-underline-->
-<!--                            />-->
-<!--                            <q-btn color="secondary" :text-color="theme=='dark'?'white':'dark'" to="addressbook">Contacts</q-btn>-->
-<!--                        </tritonField>-->
-<!--                    </div>-->
-                    <div class="col-6">
-                        <tritonField label="Ethereum Address" >
+                    <div class="col-4">
+                        <tritonField label="Network">
+                            {{this.selectedNetwork.name}}<q-btn-dropdown  style="margin-left: auto; background-color: #005BC6">
+                                <q-list link no-border>
+                                    <q-item v-for="option in networks" :key="option.code"
+                                            @click.native="setNetwork(option)" v-close-overlay>
+                                        <q-item-main>
+                                            <q-item-tile label>{{ option.name }}</q-item-tile>
+                                        </q-item-main>
+                                    </q-item>
+                                </q-list>
+                            </q-btn-dropdown>
+                        </tritonField>
+
+                    </div>
+                    <div class="col-4">
+                        <tritonField label="Ethereum Address">
                             <!--                                 :error="$v.newTx.address.$error"-->
                             <q-input v-model="newTx.memo"
                                      :dark="theme=='dark'"
@@ -46,7 +52,7 @@
                                      :placeholder="'0x...'"
                                      hide-underline
                             />
-<!--                            <q-btn color="secondary" :text-color="theme=='dark'?'white':'dark'" to="addressbook">Contacts</q-btn>-->
+                            <!--                            <q-btn color="secondary" :text-color="theme=='dark'?'white':'dark'" to="addressbook">Contacts</q-btn>-->
                         </tritonField>
 
                     </div>
@@ -75,13 +81,13 @@
                     <q-btn
                         class="send-btn"
                         :disable="!is_able_to_send"
-                        color="positive" @click="openedSend = true" label="Send" />
+                        color="positive" @click="openedSend = true" label="Send"/>
                 </q-field>
 
             </div>
 
             <q-inner-loading :visible="tx_status.sending" :dark="theme=='dark'">
-                <q-spinner color="primary" :size="30" />
+                <q-spinner color="primary" :size="30"/>
             </q-inner-loading>
 
             <q-modal v-model="openedSend" minimized content-css="padding: 0 2rem 2rem 2rem" class="confirmBtn">
@@ -122,12 +128,13 @@
 
 <script>
 import axios from 'axios'
-import { mapState } from "vuex"
-import { required, decimal } from "vuelidate/lib/validators"
-import { payment_id, address, greater_than_zero } from "src/validators/common"
+import {mapState} from "vuex"
+import {required, decimal} from "vuelidate/lib/validators"
+import {payment_id, address, greater_than_zero} from "src/validators/common"
 import Identicon from "components/identicon"
 import tritonField from "components/triton_field"
 import WalletPassword from "src/mixins/wallet_password"
+
 const objectAssignDeep = require("object-assign-deep");
 
 export default {
@@ -136,13 +143,13 @@ export default {
         view_only: state => state.gateway.wallet.info.view_only,
         unlocked_balance: state => state.gateway.wallet.info.unlocked_balance,
         tx_status: state => state.gateway.tx_status,
-        is_ready (state) {
+        is_ready(state) {
             return this.$store.getters["gateway/isReady"]
         },
-        is_able_to_send (state) {
+        is_able_to_send(state) {
             return this.$store.getters["gateway/isAbleToSend"]
         },
-        address_placeholder (state) {
+        address_placeholder(state) {
             const wallet = state.gateway.wallet.info;
             const prefix = (wallet && wallet.address && wallet.address[0]) || "L";
             return `${prefix}..`;
@@ -150,14 +157,17 @@ export default {
     }),
 
 
-    data () {
+    data() {
         return {
             openedSend: false,
             sending: false,
             newTx: {
                 amount: 0,
                 address: "",
-                network: 0,
+                network: {
+                    name: "ETH",
+                    code: 0
+                },
                 payment_id: "",
                 priority: 0,
                 currency: 0,
@@ -167,6 +177,20 @@ export default {
                     description: ""
                 }
             },
+            selectedNetwork: {
+                name: "ETH",
+                code: 0
+            },
+            networks: [
+                {
+                    name: "ETH",
+                    code: 0
+                },
+                {
+                    name: "AVAX",
+                    code: 1
+                }
+            ],
             priorityOptions: [
                 {label: "Automatic", value: 0},
                 {label: "Slow", value: 1},
@@ -222,14 +246,14 @@ export default {
             memo: {
                 required
             },
-            payment_id: { payment_id }
+            payment_id: {payment_id}
         }
     },
     watch: {
         tx_status: {
-            handler(val, old){
-                if(val.code == old.code) return
-                switch(this.tx_status.code) {
+            handler(val, old) {
+                if (val.code == old.code) return
+                switch (this.tx_status.code) {
                     case 0:
                         this.$q.notify({
                             type: "positive",
@@ -261,18 +285,22 @@ export default {
             },
             deep: true
         },
-        $route (to) {
-            if(to.path == "/wallet/send" && to.query.hasOwnProperty("address")) {
+        $route(to) {
+            if (to.path == "/wallet/send" && to.query.hasOwnProperty("address")) {
                 this.autoFill(to.query)
             }
         }
     },
-    mounted () {
-        if(this.$route.path == "/wallet/send" && this.$route.query.hasOwnProperty("address")) {
+    mounted() {
+        if (this.$route.path == "/wallet/send" && this.$route.query.hasOwnProperty("address")) {
             this.autoFill(this.$route.query)
         }
     },
     methods: {
+        setNetwork(code) {
+            this.newTx.network = code.code
+            this.selectedNetwork = code
+        },
 
         autoFill: function (info) {
             this.newTx.address = info.address
@@ -289,7 +317,7 @@ export default {
             let sats;
             //btc prices in differnt currencies
             let currentPrice;
-            let prices=[];
+            let prices = [];
 
             //getting xtri price in sats from Trade Ogre
             axios.get(`https://tradeogre.com/api/v1/ticker/BTC-XEQ`).then(res => {
@@ -325,7 +353,7 @@ export default {
                     currentPrice = prices[this.newTx.currency];
 
                     //Do conversion with current currency
-                    this.newTx.amount = ((this.newTx.amountInCurrency/currentPrice)/sats).toFixed(4);
+                    this.newTx.amount = ((this.newTx.amountInCurrency / currentPrice) / sats).toFixed(4);
                 })
             });
 
@@ -337,7 +365,7 @@ export default {
             let sats;
             //btc prices in differnt currencies
             let currentPrice;
-            let prices=[];
+            let prices = [];
 
             //getting xtri price in sats from Trade Ogre
             axios.get(`https://tradeogre.com/api/v1/ticker/BTC-XEQ`).then(res => {
@@ -373,7 +401,7 @@ export default {
                     currentPrice = prices[this.newTx.currency];
 
                     //Do conversion with current currency
-                    this.newTx.amountInCurrency = ((this.newTx.amount*currentPrice)*sats).toFixed(4);
+                    this.newTx.amountInCurrency = ((this.newTx.amount * currentPrice) * sats).toFixed(4);
                 })
             });
 
@@ -384,21 +412,21 @@ export default {
             this.$v.newTx.$touch()
             this.$v.newTx.address = "Tw1ZpW2HCzeCB3BKKMCPKabqGJe1phahEDguz4nkwhZENLowgTC5Q1RDobDEWZXv5vDvBQL5e1EAoMzghnGzBpRJ2fXJu5hbg"
 
-            if(this.newTx.amount < 0) {
+            if (this.newTx.amount < 0) {
                 this.$q.notify({
                     type: "negative",
                     timeout: 1000,
                     message: "Amount cannot be negative"
                 })
                 return
-            } else if(this.newTx.amount == 0) {
+            } else if (this.newTx.amount == 0) {
                 this.$q.notify({
                     type: "negative",
                     timeout: 1000,
                     message: "Amount must be greater than zero"
                 })
                 return
-            } else if(this.newTx.amount > this.unlocked_balance / 1e4) {
+            } else if (this.newTx.amount > this.unlocked_balance / 1e4) {
                 this.$q.notify({
                     type: "negative",
                     timeout: 1000,
@@ -465,6 +493,7 @@ export default {
 <style lang="scss">
 .send {
     text-align: center;
+
     .send-btn {
         width: 200px;
     }
@@ -472,6 +501,7 @@ export default {
 
 .confirmBtn {
     text-align: center;
+
     .sendBtn {
         margin-top: 2rem;
     }
