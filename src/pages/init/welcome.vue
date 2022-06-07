@@ -6,7 +6,7 @@
             <q-step default title="Welcome" class="first-step">
 
                 <div class="welcome-container">
-                    <img src="statics/equilibria.svg" height="100" class="q-mb-md">
+                    <img src="statics/xeq_logo_with_padding.png" height="100" class="q-mb-md">
                     <div>Version: ATOM v{{ version }}-v{{ daemonVersion }}</div>
 
                     <h6 class="q-mb-md" style="font-weight: 300">Select language:</h6>

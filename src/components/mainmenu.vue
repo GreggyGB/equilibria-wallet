@@ -31,7 +31,7 @@
     <q-modal minimized ref="aboutModal">
         <div class="about-modal">
 
-            <img class="q-mb-md" src="equilibria.svg" />
+            <img class="q-mb-md" src="xeq_logo_with_padding.png" />
 
             <p class="q-my-sm">Version: v{{version}}-v{{daemonVersion}}</p>
             <p class="q-my-sm">Copyright (c) 2018-2020, Equilibria Project</p>
