@@ -200,7 +200,7 @@ box-shadow: 0px 0px 21px -1px #005BC6">
                     style="background-color: #005BC6"
                     class="send-btn"
                     color="positive" @click="stake(), openedSend = false" label="Confirm Stake"/>
-                <q-btn v-else="unlocked_balance / 1e4 >= 1000"
+                <q-btn v-else
                        style="background-color: #db1010; cursor: not-allowed;"
                        class="send-btn"
                        label="Not Enough Coins"/>
