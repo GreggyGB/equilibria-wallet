@@ -842,10 +842,13 @@ export class WalletRPC {
 
                 if(data.result)
                 {
-                    console.log("Fee: " + data.result.fee_list[0] / 1e4)
+                    console.log(data.result)
+                    console.log("Fee: " + data.result.fee / 1e4)
+                    let burn = (amount / 1e4) * .001
+                    let fee = (data.result.fee / 1e4) - burn
                     this.sendGateway("set_tx_status", {
                         code: 0,
-                        message: "Fee " + ((amount / 1e4).toLocaleString() + " | Burn: " + ( data.result.fee_list[0] / 1e4)).toLocaleString(),
+                        message: "Fee " + (fee).toLocaleString() + " | Burn: " + (burn).toLocaleString(),
                         sending: false
                     })
                     let t = new Date().getTime()
@@ -858,33 +861,35 @@ export class WalletRPC {
                                     message: "User took too long",
                                     timeout: 2000
                                 })
-                                this.confirmed_stake
+                                this.confirmed_stake = false
                                 return
                             }
                         }
                         console.log("CONFIRMED")
                     this.confirmed_stake = false
 
-                    // this.sendRPC("relay_tx", {"hex":data.result.tx_metadata_list[0]}).then((data_finalize)=> {
-                    //     if (data.hasOwnProperty("error")) {
-                    //         let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
-                    //         this.sendGateway("set_tx_status", {
-                    //             code: -1,
-                    //             message: error,
-                    //             sending: false
-                    //         })
-                    //         return
-                    //     }
-                    //
-                    //     if(data_finalize.result.tx_hash)
-                    //         this.saveTxNotes(data_finalize.result.tx_hash, note)
-                    //
-                    //     this.sendGateway("show_notification", {
-                    //         type: "positive",
-                    //         message: "Staked " + (amount / 1e4).toLocaleString() + " XEQ to: " + service_node_key,
-                    //         timeout: 2000
-                    //     })
-                    // })
+                    this.sendRPC("relay_tx", {"hex":data.result.tx_metadata}).then((data_finalize)=> {
+                        if (data.hasOwnProperty("error")) {
+                            let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
+                            this.sendGateway("set_tx_status", {
+                                code: -1,
+                                message: error,
+                                sending: false
+                            })
+                            return
+                        }
+                
+                        this.sendGateway("show_notification", {
+                            type: "positive",
+                            message: "Staked " + (amount / 1e4).toLocaleString() + " XEQ to: " + service_node_key,
+                            timeout: 2000
+                        })
+
+                        this.sendGateway("set_tx_status", {
+                            code: 0,
+                            sending: true
+                        })
+                    })
                 }
 
             })
