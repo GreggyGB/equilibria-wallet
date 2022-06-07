@@ -146,6 +146,7 @@ box-shadow: 0px 0px 21px -1px #005BC6">
                                     Lock Time: {{
                                         getLockTime(item.registration_height)
                                     }}</br>
+                                    Requirement: {{ 1000 }} XEQ
                                 </p>
 
                                 <div v-if="isFull(item)">
@@ -177,6 +178,8 @@ box-shadow: 0px 0px 21px -1px #005BC6">
             <p>Oracle ID: {{ oracleKey }}</p>
             <p v-if="unlocked_balance / 1e4 > maxAmount">Max Amount: {{ maxAmount }}</p>
             <p v-else>Max Amount: {{ (unlocked_balance / 1e4).toLocaleString() }}</p>
+            <p>Minimum Amount: {{ 1000 }}</p>
+
             <tritonField label="Amount">
                 <q-input
                     v-model="stake_amount"
@@ -193,10 +196,14 @@ box-shadow: 0px 0px 21px -1px #005BC6">
             </tritonField>
 
             <div style="margin-left: auto; margin-right: auto;padding-top: 10px">
-                <q-btn
+                <q-btn v-if="unlocked_balance / 1e4 >= 1000"
                     style="background-color: #005BC6"
                     class="send-btn"
                     color="positive" @click="stake(), openedSend = false" label="Confirm Stake"/>
+                <q-btn v-else="unlocked_balance / 1e4 >= 1000"
+                       style="background-color: #db1010; cursor: not-allowed;"
+                       class="send-btn"
+                       label="Not Enough Coins"/>
             </div>
         </q-modal>
 
