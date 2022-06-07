@@ -858,11 +858,12 @@ export class WalletRPC {
                                     message: "User took too long",
                                     timeout: 2000
                                 })
+                                this.confirmed_stake
                                 return
                             }
                         }
                         console.log("CONFIRMED")
-
+                    this.confirmed_stake = false
 
                     // this.sendRPC("relay_tx", {"hex":data.result.tx_metadata_list[0]}).then((data_finalize)=> {
                     //     if (data.hasOwnProperty("error")) {
