@@ -801,7 +801,9 @@ export class WalletRPC {
             this.sendRPC("stake", {
                 amount,
                 destination,
-                service_node_key
+                service_node_key,
+                do_not_relay: true,
+                get_tx_metadata: true
             }).then((data) => {
                 if (data.hasOwnProperty("error")) {
                     let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
@@ -817,11 +819,38 @@ export class WalletRPC {
                     })
                     return
                 }
-                this.sendGateway("show_notification", {
-                    type: "positive",
-                    message: "Staked " + (amount / 1e4).toLocaleString() + " XEQ to: " + service_node_key,
-                    timeout: 2000
-                })
+
+                if(data.result)
+                {
+                    console.log("Fee: " + data.result.fee_list[0] / 1e4)
+
+                    //show dialog for confirmation (Yes/No)
+                    //Staking to (node key)
+                    //Amount: amount
+                    //Burn: amount * .001
+                    //Fee: fee - burn
+                    
+                    this.sendRPC("relay_tx", {"hex":data.result.tx_metadata_list[0]}).then((data_finalize)=> {
+                        if (data.hasOwnProperty("error")) {
+                            let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
+                            this.sendGateway("set_tx_status", {
+                                code: -1,
+                                message: error,
+                                sending: false
+                            })
+                            return
+                        }
+
+                        if(data_finalize.result.tx_hash)
+                            this.saveTxNotes(data_finalize.result.tx_hash, note)
+
+                        this.sendGateway("show_notification", {
+                            type: "positive",
+                            message: "Staked " + (amount / 1e4).toLocaleString() + " XEQ to: " + service_node_key,
+                            timeout: 2000
+                        })
+                    })
+                }
 
             })
         })
@@ -935,16 +964,17 @@ export class WalletRPC {
             }
 
             if(memo) {
-
                 let memo_field = {
                     address: "",
                     amount: ""
                 }
-
                 memo_field.address = memo;
                 memo_field.amount = amount.toString()
                 params.memo = JSON.stringify(memo_field);
             }
+
+            params.do_not_relay = true;
+            params.get_tx_metadata = true;
 
             this.sendRPC(rpc_endpoint, params).then((data) => {
                 if (data.hasOwnProperty("error")) {
@@ -957,18 +987,34 @@ export class WalletRPC {
                     return
                 }
 
-                this.sendGateway("set_tx_status", {
-                    code: 0,
-                    message: "Transaction successfully sent",
-                    sending: false
-                })
-
                 if (data.result) {
-                    const hash_list = data.result.tx_hash_list || []
-                    // Save notes
-                    if (note && note !== "") {
-                        hash_list.forEach(txid => this.saveTxNotes(txid, note))
-                    }
+                    console.log("Fee: " + data.result.fee_list[0] / 1e4)
+
+                    //show dialog for confirmation (Yes/No)
+                    //Sending to (dest address)
+                    //Amount: amount
+                    //Fee: fee
+                    
+                    this.sendRPC("relay_tx", {"hex":data.result.tx_metadata_list[0]}).then((data_finalize)=> {
+                        if (data.hasOwnProperty("error")) {
+                            let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
+                            this.sendGateway("set_tx_status", {
+                                code: -1,
+                                message: error,
+                                sending: false
+                            })
+                            return
+                        }
+
+                        this.sendGateway("set_tx_status", {
+                            code: 0,
+                            message: "Transaction successfully sent",
+                            sending: false
+                        })
+
+                        if(data_finalize.result.tx_hash)
+                            this.saveTxNotes(data_finalize.result.tx_hash, note)
+                    })
                 }
             })
 
@@ -1213,7 +1259,6 @@ export class WalletRPC {
                 "address": address
             })
                 .then((data) => {
-                    console.log(data)
                     let wallet = {
                         staker: {
                             stake: data.result
