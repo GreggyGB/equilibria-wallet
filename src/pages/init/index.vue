@@ -95,8 +95,8 @@ export default {
     computed: mapState({
         status: state => state.gateway.app.status,
         remote: state => state.gateway.app.selected_node,
-        app: state => state.gateway.app
-
+        app: state => state.gateway.app,
+        daemons: state => state.gateway.daemons
     }),
     methods: {
         updateStatus() {
@@ -129,6 +129,9 @@ export default {
                 case 3:
                     if (this.app.config.daemons.mainnet.type == "local") {
                         this.message = "Connecting to local daemon"
+                    } else if (!this.app.scan)  {
+                        console.log(this.daemons)
+                        this.message = "Connecting to " + this.daemons.mainnet.remote_host
                     } else {
                         this.message = "Connecting to " + this.remote
                     }
@@ -166,24 +169,6 @@ export default {
     },
     mounted() {
         console.log(this.$state)
-        // console.log(this.remotes)
-        // for (const i in this.remotes) {
-        //     const requestOptions = {
-        //         method: "POST",
-        //         headers: { "Content-Type": "application/json" },
-        //         body: JSON.stringify({ title: "Vue POST Request Example" })
-        //     };
-        //     fetch("https://jsonplaceholder.typicode.com/posts", requestOptions)
-        //         .then(response => response.json())
-        //         .then(data => (this.postId = data.id));
-            // fetch("https://api.coingecko.com/api/v3/coins/triton?tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false\n")
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         console.log(data.market_data.current_price.usd)
-            //         this.price = data.market_data.current_price.usd
-            //         this.$forceUpdate()
-            //     });
-        // }
         this.updateStatus()
     },
     watch: {

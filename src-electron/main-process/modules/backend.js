@@ -111,6 +111,12 @@ export class Backend {
             }
         }
 
+        if (this.config_data.app.scan == undefined) {
+            this.config_data.app.scan = true
+        }
+
+        console.log(this.config_data)
+
         let remotes;
         try {
             remotes = fs.readFileSync(path.join(this.config_dir, "gui", "remotes.json"), "utf8")
@@ -226,6 +232,13 @@ export class Backend {
                     this.send("set_app_data", {
                         remotes: params,
                     })
+                })
+                break
+            case "change_scan":
+                this.config_data.app.scan = params
+                console.log(params)
+                this.send("set_app_data", {
+                    scan: params,
                 })
                 break
 
@@ -362,32 +375,35 @@ export class Backend {
             let port = ""
             let host = ""
             let fastest_time = 1000000
-            for (const i in this.remotes) {
-                if (this.config_data.daemons.mainnet.type == "local")
-                    break
-                let options = {
-                    method: "POST",
-                    json: {
-                        jsonrpc: "2.0",
-                        id: "0",
-                        method: "get_info"
-                    },
-                }
-                let start = new Date().getTime()
-                try {
-                    await fetch("http://" + this.remotes[i].host + ":" + this.remotes[i].port + "/json_rpc", options)
-                        .then(() => {
-                            console.log("http://" + this.remotes[i].host + ":" + this.remotes[i].port + "/json_rpc")
-                            let end = new Date().getTime() - start
-                            if (end < fastest_time) {
-                                port = this.remotes[i].port
-                                host = this.remotes[i].host
-                                fastest_time = end
-                                console.log("http://" + this.remotes[i].host + ":" + this.remotes[i].port, fastest_time)
-                            }
-                        })
-                } catch {
-                    console.log("http://" + this.remotes[i].host + ":" + this.remotes[i].port + "/json_rpc", "is down")
+            if (this.config_data.app.scan) {
+                for (const i in this.remotes) {
+                    if (this.config_data.daemons.mainnet.type == "local")
+                        break
+                    let options = {
+                        method: "POST",
+                        json: {
+                            jsonrpc: "2.0",
+                            id: "0",
+                            method: "get_info"
+                        },
+                    }
+                    let start = new Date().getTime()
+
+                    try {
+                        await fetch("http://" + this.remotes[i].host + ":" + this.remotes[i].port + "/json_rpc", options)
+                            .then(() => {
+                                console.log("http://" + this.remotes[i].host + ":" + this.remotes[i].port + "/json_rpc")
+                                let end = new Date().getTime() - start
+                                if (end < fastest_time) {
+                                    port = this.remotes[i].port
+                                    host = this.remotes[i].host
+                                    fastest_time = end
+                                    console.log("http://" + this.remotes[i].host + ":" + this.remotes[i].port, fastest_time)
+                                }
+                            })
+                    } catch {
+                        console.log("http://" + this.remotes[i].host + ":" + this.remotes[i].port + "/json_rpc", "is down")
+                    }
                 }
             }
 

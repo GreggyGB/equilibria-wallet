@@ -78,14 +78,35 @@
                 />
             </tritonField>
         </div>
-        <div style="margin-top: 20px;">
-            <q-btn style="background-color: #db1010; margin-left: auto"
-                   class="send-btn"
-                   @click="removeRemote()"
-                   label="Remove Node"/>
+        <p style="font-size: 10px; margin-bottom: 0">If the wallet fails to load on startup, please wait 10 seconds then try again. If that still does not work, try restarting the wallet.</p>
+        <div style="display: grid;grid-template-columns: 1fr 1fr; grid-gap: 15px; width: 20%">
+            <div style="margin-top: 20px">
+                <q-btn style="background-color: #db1010; margin-left: auto"
+                       class="send-btn"
+                       @click="removeRemote()"
+                       label="Remove Node"/>
+            </div>
+            <div style="margin-top: 20px">
+                <q-btn style="background-color: #005BC6; margin-left: auto"
+                       class="send-btn"
+                       @click="addRemote()"
+                       label="Add Node"/>
+            </div>
         </div>
 
+
     </template>
+
+    <q-field helper="Scan for the fastest remote node" label="Remote Node Scan" orientation="vertical">
+        <q-option-group
+            type="radio"
+            v-model="config.app.scan"
+            :options="[
+                { label: 'Enabled', value: true },
+                { label: 'Disabled', value: false },
+                ]"
+        />
+    </q-field>
 
     <q-collapsible label="Advanced Options" header-class="q-mt-sm non-selectable row reverse advanced-options-label">
             <div class="row justify-between q-mb-md">
@@ -220,7 +241,6 @@ export default {
     },
     methods: {
         removeRemote() {
-            console.log(this.config_daemon.remote_host, this.config.app, path.join(this.config.app.data_dir, "gui", "remotes.json"))
             let remotes = JSON.parse(fs.readFileSync(path.join(this.config.app.data_dir, "gui", "remotes.json")))
             let new_remotes = []
             for (const i in remotes) {
@@ -230,6 +250,22 @@ export default {
             }
             this.$gateway.send("core", "change_remotes", new_remotes);
             this.remotes = new_remotes
+        },
+        addRemote() {
+            let remotes = JSON.parse(fs.readFileSync(path.join(this.config.app.data_dir, "gui", "remotes.json")))
+            let check = false
+            for (const i in remotes) {
+                if (remotes[i].host == this.config_daemon.remote_host) {
+                    check = true
+                }
+            }
+            console.log(remotes)
+
+            if (check)
+                return
+            remotes.push({host: this.config_daemon.remote_host, port: this.config_daemon.remote_port})
+            this.$gateway.send("core", "change_remotes", remotes);
+            this.remotes = remotes
         },
         selectPath (type) {
             const fileInput = type === "data" ? "fileInputData" : "fileInputWallet"

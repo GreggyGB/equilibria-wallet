@@ -7,19 +7,14 @@
 
                 <div class="welcome-container">
                     <img src="statics/xeq_logo_with_padding.png" height="100" class="q-mb-md">
-                    <div>Version: ATOM v{{ version }}-v{{ daemonVersion }}</div>
-
-                    <h6 class="q-mb-md" style="font-weight: 300">Select language:</h6>
+                    <div style="padding-bottom: 15px">Version: ATOM v{{ version }}-v{{ daemonVersion }}</div>
 
                     <q-btn
                         color="primary"
                         size="md"
-                        icon="language"
-                        label="English"
+                        label="Load Wallet"
                         @click="clickNext()"
                     />
-
-                    <p class="q-mt-md">More languages coming soon</p>
                 </div>
 
             </q-step>
@@ -90,12 +85,12 @@ export default {
             this.is_first_page = this.$refs.stepper.steps[0].active
         },
         clickNext() {
-            // if(this.$refs.stepper.steps[this.$refs.stepper.length-1].active) {
+            if(this.$refs.stepper.steps[this.$refs.stepper.length-1].active) {
             this.$gateway.send("core", "save_config_init", this.pending_config);
             this.$router.replace({path: "/"});
-            // } else {
-            //     this.$refs.stepper.next();
-            // }
+            } else {
+                this.$refs.stepper.next();
+            }
         },
         clickPrev() {
             this.$refs.stepper.previous();
