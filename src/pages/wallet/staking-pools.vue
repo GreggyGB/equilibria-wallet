@@ -38,20 +38,20 @@
                     {{
                         ((stake_data.total_staked / (10 ** 4)) / getTVL() * (Number(((720 / tx_list.length) * 5.4) * 30))).toLocaleString()
                     }} XEQ</h5>
-<!--                <h5 style="padding-top:0px;margin:1%;text-align: left;">Daily Earnings:-->
-<!--                    {{ ((daily_reward / (10 ** 4)).toLocaleString()) }}-->
-<!--                </h5>-->
+                <!--                <h5 style="padding-top:0px;margin:1%;text-align: left;">Daily Earnings:-->
+                <!--                    {{ ((daily_reward / (10 ** 4)).toLocaleString()) }}-->
+                <!--                </h5>-->
                 <h5 style="padding-top:0px;margin:1%;text-align: justify;"> Nodes Staked To:
                     {{ stake_data.staked_nodes.length }}
                 </h5>
                 <h5 style="padding-top:0px;margin:1%;text-align: justify;"> Nodes Operating:
                     {{ num_operating }}
                 </h5>
-<!--                <h5 style="padding-top:0px;margin:1%;text-align: justify;">-->
-<!--                    Estimated Earnings for Period:-->
-<!--                    ${{ (this.current_price * this.earnings_for_period / (10 ** 4)).toLocaleString() }} |-->
-<!--                    {{ (this.earnings_for_period / (10 ** 4)).toLocaleString() }} XEQ-->
-<!--                </h5>-->
+                <!--                <h5 style="padding-top:0px;margin:1%;text-align: justify;">-->
+                <!--                    Estimated Earnings for Period:-->
+                <!--                    ${{ (this.current_price * this.earnings_for_period / (10 ** 4)).toLocaleString() }} |-->
+                <!--                    {{ (this.earnings_for_period / (10 ** 4)).toLocaleString() }} XEQ-->
+                <!--                </h5>-->
             </div>
         </div>
 
@@ -59,9 +59,9 @@
             <h4 style="padding-bottom:0px;margin-bottom:0%;">Staked Pools</h4>
         </div>
         <div v-if="staked_pools.length != 0" class="row q-pt-sm q-mx-md q-mb-sm items-end non-selectable">
-            <div style="padding-top: 5px; margin-left: auto; margin-right: auto" class="tx-list" >
+            <div style="padding-top: 5px; margin-left: auto; margin-right: auto" class="tx-list">
                 <div class="row justify-center">
-                    <div v-for="item in staked_pools" :key="item.service_node_pubkey" >
+                    <div v-for="item in staked_pools" :key="item.service_node_pubkey">
                         <div class="col-2" style="padding: 4%; ">
                             <div
                                 style="background-color: #222222; border-radius: 5px;margin:auto; padding: 50px;padding-top:5px;padding-bottom:5px; -webkit-box-shadow: 0px 0px 21px -1px #005BC6;
@@ -197,9 +197,9 @@ box-shadow: 0px 0px 21px -1px #005BC6">
 
             <div style="margin-left: auto; margin-right: auto;padding-top: 10px">
                 <q-btn v-if="unlocked_balance / 1e4 >= 1000"
-                    style="background-color: #005BC6"
-                    class="send-btn"
-                    color="positive" @click="stake(), openedSend = false" label="Confirm Stake"/>
+                       style="background-color: #005BC6"
+                       class="send-btn"
+                       color="positive" @click="stake(), openedSend = false" label="Confirm Stake"/>
                 <q-btn v-else
                        style="background-color: #db1010; cursor: not-allowed;"
                        class="send-btn"
@@ -348,9 +348,9 @@ export default {
             deep: true
         },
         tx_status: {
-            handler(val, old){
+            handler(val, old) {
                 // if(val.code == old.code) return
-                switch(this.tx_status.code) {
+                switch (this.tx_status.code) {
                     case 0:
                         this.$q.dialog({
                             title: "Confirm Fee",

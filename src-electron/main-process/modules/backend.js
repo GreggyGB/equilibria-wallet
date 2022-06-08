@@ -43,7 +43,6 @@ export class Backend {
         }
 
         this.config_file = path.join(this.config_dir, "gui", "config.json")
-        console.log(this.config_file)
 
         const daemon = {
             type: "remote",
@@ -115,7 +114,6 @@ export class Backend {
             this.config_data.app.scan = true
         }
 
-        console.log(this.config_data)
 
         let remotes;
         try {
@@ -227,7 +225,6 @@ export class Backend {
                 break
             case "change_remotes":
                 this.remotes = params
-                console.log(typeof params, this.remotes)
                 fs.writeFile(path.join(this.config_dir, "gui", "remotes.json"), JSON.stringify(params), "utf8", () => {
                     this.send("set_app_data", {
                         remotes: params,
@@ -236,7 +233,6 @@ export class Backend {
                 break
             case "change_scan":
                 this.config_data.app.scan = params
-                console.log(params)
                 this.send("set_app_data", {
                     scan: params,
                 })
@@ -245,7 +241,6 @@ export class Backend {
             case "save_config":
                 // check if config has changed
                 let config_changed = false
-                console.log(params.daemons.mainnet)
                 if (params.daemons.mainnet.remote_host) {
                     try {
                         this.remotes.push({
@@ -577,19 +572,19 @@ export class Backend {
                     async function killPort() {
                         return new Promise(async ok => {
                             try {
-                                await execSync('kill -9 $(lsof -ti:18082)', { encoding: 'utf-8' });
-                            } catch (err) {}
+                                await execSync('kill -9 $(lsof -ti:18082)', {encoding: 'utf-8'});
+                            } catch (err) {
+                            }
                             try {
-                                let e = await execSync('netstat -ano | findstr :18082', { encoding: 'utf-8' });
+                                let e = await execSync('netstat -ano | findstr :18082', {encoding: 'utf-8'});
                                 e = e.replace(/\s+/g, ' ').trim()
                                 let pid = e.split(" ")
                                 console.log(pid)
 
                                 for (let i = 4; i < pid.length; i += 5) {
-                                    console.log("Check")
                                     if (Number(pid[i])) {
                                         try {
-                                            await execSync(`taskkill /PID ${pid[i]} /F `, { encoding: 'utf-8' });
+                                            await execSync(`taskkill /PID ${pid[i]} /F `, {encoding: 'utf-8'});
                                             break
                                         } catch (err) {
                                             console.log("kill", err)
@@ -602,8 +597,8 @@ export class Backend {
                             ok()
                         })
                     }
-                    await killPort()
 
+                    await killPort()
 
 
                     this.daemon.start(this.config_data).then(async () => {

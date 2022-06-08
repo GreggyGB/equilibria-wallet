@@ -129,7 +129,7 @@ export default {
                 case 3:
                     if (this.app.config.daemons.mainnet.type == "local") {
                         this.message = "Connecting to local daemon"
-                    } else if (!this.app.scan)  {
+                    } else if (!this.app.scan) {
                         console.log(this.daemons)
                         this.message = "Connecting to " + this.daemons.mainnet.remote_host
                     } else {
