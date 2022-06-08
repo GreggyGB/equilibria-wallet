@@ -219,6 +219,15 @@ export class Backend {
                     })
                 })
                 break
+            case "change_remotes":
+                this.remotes = params
+                console.log(typeof params, this.remotes)
+                fs.writeFile(path.join(this.config_dir, "gui", "remotes.json"), JSON.stringify(params), "utf8", () => {
+                    this.send("set_app_data", {
+                        remotes: params,
+                    })
+                })
+                break
 
             case "save_config":
                 // check if config has changed

@@ -59,6 +59,7 @@
                             <q-item-main>
                                 <q-item-tile label>{{ option.host }}:{{ option.port }}</q-item-tile>
                             </q-item-main>
+
                         </q-item>
                     </q-list>
                 </q-btn-dropdown>
@@ -76,6 +77,12 @@
                     hide-underline
                 />
             </tritonField>
+        </div>
+        <div style="margin-top: 20px;">
+            <q-btn style="background-color: #db1010; margin-left: auto"
+                   class="send-btn"
+                   @click="removeRemote()"
+                   label="Remove Node"/>
         </div>
 
     </template>
@@ -175,6 +182,9 @@
 <script>
 import { mapState } from "vuex"
 import tritonField from "components/triton_field"
+const path = require("upath")
+const fs = require("fs")
+
 export default {
     name: "SettingsGeneral",
     props: {
@@ -186,7 +196,7 @@ export default {
     },
     computed: mapState({
         theme: state => state.gateway.app.config.appearance.theme,
-        remotes: state => state.gateway.app.remotes,
+        _remotes: state => state.gateway.app.remotes,
         config: state => state.gateway.app.pending_config,
         config_daemon (state) {
             return this.config.daemons[this.config.app.net_type]
@@ -199,6 +209,9 @@ export default {
             return this.defaults.daemons[this.config.app.net_type]
         }
     }),
+    beforeMount() {
+      this.remotes = this._remotes
+    },
     mounted () {
         if(this.randomise_remote && this.remotes.length > 0 && this.config.app.net_type === "mainnet") {
             const index = Math.floor(Math.random() * Math.floor(this.remotes.length));
@@ -206,6 +219,18 @@ export default {
         }
     },
     methods: {
+        removeRemote() {
+            console.log(this.config_daemon.remote_host, this.config.app, path.join(this.config.app.data_dir, "gui", "remotes.json"))
+            let remotes = JSON.parse(fs.readFileSync(path.join(this.config.app.data_dir, "gui", "remotes.json")))
+            let new_remotes = []
+            for (const i in remotes) {
+                if (remotes[i].host != this.config_daemon.remote_host) {
+                    new_remotes.push(remotes[i])
+                }
+            }
+            this.$gateway.send("core", "change_remotes", new_remotes);
+            this.remotes = new_remotes
+        },
         selectPath (type) {
             const fileInput = type === "data" ? "fileInputData" : "fileInputWallet"
             this.$refs[fileInput].click()
@@ -235,10 +260,13 @@ export default {
     data () {
         return {
             select: 0,
+            remotes: []
         }
     },
     components: {
         tritonField,
+        path,
+        fs
     }
 }
 </script>
