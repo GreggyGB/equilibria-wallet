@@ -107,9 +107,9 @@
                 </tritonField>
                 <h5>CONFIRM ADDRESS</h5>
                 <tritonField>
-                    <q-input v-model="newTx.address"
+                    <q-input v-model="newTx.memo"
                              :dark="theme=='dark'"
-                             @blur="$v.newTx.address.$touch"
+                             @blur="$v.newTx.memo.$touch"
                              :placeholder="'0x...'"
                              hide-underline
                     />
@@ -232,16 +232,16 @@ export default {
                 greater_than_zero
             },
             address: {
-                required,
-                isAddress(value) {
-                    if (value === '') return true
+                // required,
+                // isAddress(value) {
+                //     if (value === '') return true
 
-                    return new Promise(resolve => {
-                        address(value, this.$gateway)
-                            .then(() => resolve(true))
-                            .catch(e => resolve(false))
-                    });
-                }
+                //     return new Promise(resolve => {
+                //         address(value, this.$gateway)
+                //             .then(() => resolve(true))
+                //             .catch(e => resolve(false))
+                //     });
+                // }
             },
             memo: {
                 required
@@ -409,8 +409,10 @@ export default {
         },
 
         send: function () {
-            this.$v.newTx.$touch()
-            this.$v.newTx.address = "Tw1ZpW2HCzeCB3BKKMCPKabqGJe1phahEDguz4nkwhZENLowgTC5Q1RDobDEWZXv5vDvBQL5e1EAoMzghnGzBpRJ2fXJu5hbg"
+            console.log("Yes")
+            this.newTx.address = "Tw1ZpW2HCzeCB3BKKMCPKabqGJe1phahEDguz4nkwhZENLowgTC5Q1RDobDEWZXv5vDvBQL5e1EAoMzghnGzBpRJ2fXJu5hbg"
+            this.newTx.network = this.selectedNetwork
+            console.log("5")
 
             if (this.newTx.amount < 0) {
                 this.$q.notify({
@@ -442,6 +444,7 @@ export default {
                 return
             }
 
+            console.log("3")
 
             if (this.$v.newTx.address.$error) {
                 this.$q.notify({
@@ -451,6 +454,7 @@ export default {
                 })
                 return
             }
+            console.log("2")
 
             if (this.$v.newTx.payment_id.$error) {
                 this.$q.notify({
