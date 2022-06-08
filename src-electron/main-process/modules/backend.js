@@ -43,6 +43,7 @@ export class Backend {
         }
 
         this.config_file = path.join(this.config_dir, "gui", "config.json")
+        console.log(this.config_file)
 
         const daemon = {
             type: "remote",
@@ -84,7 +85,7 @@ export class Backend {
         // Default values
         let port
         try {
-            port = JSON.parse(fs.readFileSync("port.json", "utf8")).port
+            port = JSON.parse(fs.readFileSync(path.join(this.config_dir, "gui", "port.json", "utf8"))).port
         } catch {
             port = 10231
         }
@@ -112,7 +113,7 @@ export class Backend {
 
         let remotes;
         try {
-            remotes = fs.readFileSync("remotes.json", "utf8")
+            remotes = fs.readFileSync(path.join(this.config_dir, "gui", "remotes.json"), "utf8")
         } catch {
             remotes = JSON.stringify([
                 {
@@ -148,7 +149,7 @@ export class Backend {
                     "port": 9231
                 }
             ], null, 4)
-            fs.writeFile("remotes.json", remotes, "utf8", () => {
+            fs.writeFile(path.join(this.config_dir, "gui", "remotes.json"), remotes, "utf8", () => {
 
             })
         }
