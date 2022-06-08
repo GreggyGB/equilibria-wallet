@@ -11,7 +11,7 @@
             <div class="q-pa-md">
                 <div class="row gutter-md">
                     <div class="col-4">
-                        <tritonField label="Amount of XEQ to Swap for wXEQ" :error="$v.newTx.amount.$error">
+                        <tritonField v-bind:label="`Amount of XEQ to Swap for ${selectedNetwork.symbol}`" :error="$v.newTx.amount.$error">
                             <q-input v-model="newTx.amount"
                                      :dark="theme=='dark'"
                                      type="number"
@@ -44,7 +44,7 @@
 
                     </div>
                     <div class="col-4">
-                        <tritonField label="Ethereum Address">
+                        <tritonField v-bind:label="selectedNetwork.name + ' Address'">
                             <!--                                 :error="$v.newTx.address.$error"-->
                             <q-input v-model="newTx.memo"
                                      :dark="theme=='dark'"
@@ -179,15 +179,18 @@ export default {
             },
             selectedNetwork: {
                 name: "ETH",
+                symbol: "wXEQ",
                 code: 0
             },
             networks: [
                 {
                     name: "ETH",
+                    symbol: "wXEQ",
                     code: 0
                 },
                 {
                     name: "AVAX",
+                    symbol: "aXEQ",
                     code: 1
                 }
             ],
