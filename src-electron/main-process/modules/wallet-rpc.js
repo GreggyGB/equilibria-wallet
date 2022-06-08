@@ -25,6 +25,7 @@ export class WalletRPC {
             txs: 0
         }
         this.confirmed_stake = false
+        this.cancel_stake = false
         this.wallet_state = {
             open: false,
             name: "",
@@ -284,6 +285,9 @@ export class WalletRPC {
                 break
             case "stake_confirm":
                 this.confirmStake()
+                break
+            case "stake_cancel":
+                this.cancelStake()
                 break
             case "sweepAll":
                 this.sweepAll(params.password)
@@ -800,6 +804,10 @@ export class WalletRPC {
         this.confirmed_stake = true
     }
 
+    cancelStake() {
+        this.cancel_stake = true
+    }
+
     stake(password, amount, service_node_key, destination) {
         crypto.pbkdf2(password, this.auth[2], 1000, 64, "sha512", (err, password_hash) => {
             if (err) {
@@ -855,13 +863,14 @@ export class WalletRPC {
                     while (!this.confirmed_stake) {
                         await new Promise(r => setTimeout(r, 25));
                         let l = new Date().getTime()
-                        if (l - t > 30000) {
+                        if (l - t > 30000 || this.cancel_stake) {
                             this.sendGateway("show_notification", {
                                 type: "negative",
                                 message: "User took too long",
                                 timeout: 2000
                             })
                             this.confirmed_stake = false
+                            this.cancel_stake = false
                             return
                         }
                     }
@@ -1017,7 +1026,7 @@ export class WalletRPC {
             params.do_not_relay = true;
             params.get_tx_metadata = true;
 
-            this.sendRPC(rpc_endpoint, params).then((data) => {
+            this.sendRPC(rpc_endpoint, params).then(async (data) => {
                 if (data.hasOwnProperty("error")) {
                     let error = data.error.message.charAt(0).toUpperCase() + data.error.message.slice(1)
                     this.sendGateway("set_tx_status", {
@@ -1030,11 +1039,29 @@ export class WalletRPC {
 
                 if (data.result) {
                     console.log("Fee: " + data.result.fee_list[0] / 1e4)
+                    this.sendGateway("set_tx_status", {
+                        code: 0,
+                        message: "Fee " + (data.result.fee_list[0] / 1e4).toLocaleString(),
+                        sending: false
+                    })
 
-                    //show dialog for confirmation (Yes/No)
-                    //Sending to (dest address)
-                    //Amount: amount
-                    //Fee: fee
+
+                    let t = new Date().getTime()
+                    while (!this.confirmed_stake) {
+                        await new Promise(r => setTimeout(r, 25));
+                        let l = new Date().getTime()
+                        if (l - t > 30000 || this.cancel_stake) {
+                            this.sendGateway("show_notification", {
+                                type: "negative",
+                                message: "User took too long",
+                                timeout: 2000
+                            })
+                            this.confirmed_stake = false
+                            this.cancel_stake = false
+                            return
+                        }
+                    }
+                    this.confirmed_stake = false
 
                     this.sendRPC("relay_tx", {"hex": data.result.tx_metadata_list[0]}).then((data_finalize) => {
                         if (data.hasOwnProperty("error")) {
@@ -1048,7 +1075,7 @@ export class WalletRPC {
                         }
 
                         this.sendGateway("set_tx_status", {
-                            code: 0,
+                            code: 1,
                             message: "Transaction successfully sent",
                             sending: false
                         })

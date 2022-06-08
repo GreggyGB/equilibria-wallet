@@ -368,6 +368,7 @@ export default {
                         }).then(() => {
                             this.$gateway.send("wallet", "stake_confirm", {})
                         }).catch(() => {
+                            this.$gateway.send("wallet", "stake_cancel", {})
 
                         })
                         break;

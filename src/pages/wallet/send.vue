@@ -176,7 +176,7 @@
             <q-btn class="sendBtn"
             color="positive"
             @click="openedSend = false, send()"
-            label="SEND"
+            label="Confirm"
             />
         </q-modal>
 
@@ -292,6 +292,29 @@ export default {
                 if(val.code == old.code) return
                 switch(this.tx_status.code) {
                     case 0:
+                        this.$q.dialog({
+                            title: "Confirm Fee",
+                            message: this.tx_status.message,
+                            ok: {
+                                label: "OK",
+                                color: "positive"
+
+                            },
+                            cancel: {
+                                flat: true,
+                                label: "CANCEL",
+                                color: "red"
+                            }
+                        }).then(() => {
+                            this.$gateway.send("wallet", "stake_confirm", {})
+
+                        }).catch(() => {
+                            this.$gateway.send("wallet", "stake_cancel", {})
+
+                        })
+
+                        break;
+                    case 1:
                         this.$q.notify({
                             type: "positive",
                             timeout: 1000,
@@ -310,7 +333,7 @@ export default {
                             },
                             note: ""
                         }
-                        break;
+                        break
                     case -1:
                         this.$q.notify({
                             type: "negative",
@@ -494,9 +517,9 @@ export default {
 
             this.showPasswordConfirmation({
                 title: "Transfer",
-                noPasswordMessage: "Do you want to send the transaction?",
+                noPasswordMessage: "Do you want to send the transaction? The fee will be shown on the next page before relaying the transaction.",
                 ok: {
-                    label: "SEND",
+                    label: "Check Fee",
                     color: "positive"
 
                 },
