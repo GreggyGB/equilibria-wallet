@@ -79,15 +79,15 @@
                             align="left"
                         />
                     </router-link>
-                    <router-link to="/wallet/service-node">
-                        <q-btn
-                            class="large-btn primary"
-                            label="Node Reg"
-                            size="md"
-                            icon-right="arrow_right_alt"
-                            align="left"
-                        />
-                    </router-link>
+<!--                    <router-link to="/wallet/service-node">-->
+<!--                        <q-btn-->
+<!--                            class="large-btn primary"-->
+<!--                            label="Node Reg"-->
+<!--                            size="md"-->
+<!--                            icon-right="arrow_right_alt"-->
+<!--                            align="left"-->
+<!--                        />-->
+<!--                    </router-link>-->
                     <router-link to="/wallet/addressbook">
                         <q-btn
                             class="large-btn primary"

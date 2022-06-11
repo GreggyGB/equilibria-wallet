@@ -8,11 +8,10 @@ export default {
                 theme: "dark"
             }
         },
-        pending_config: {
-        },
+        pending_config: {},
         selected_node: "",
-        remotes: {
-        }
+        scan: null,
+        remotes: {}
     },
     wallets: {
         list: [],
