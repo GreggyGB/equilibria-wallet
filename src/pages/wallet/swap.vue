@@ -274,6 +274,10 @@ export default {
                                 name: "",
                                 description: ""
                             },
+                            network: {
+                                name: "ETH",
+                                code: 0
+                            },
                             note: ""
                         }
                         break;
@@ -301,7 +305,7 @@ export default {
     },
     methods: {
         setNetwork(code) {
-            this.newTx.network = code.code
+            this.newTx.network = code
             this.selectedNetwork = code
         },
 
@@ -482,6 +486,7 @@ export default {
                     message: "Sending transaction",
                     sending: true
                 })
+                this.newTx.network = this.newTx.network.code
                 const newTx = objectAssignDeep.noMutate(this.newTx, {password})
                 this.$gateway.send("wallet", "transfer", newTx)
             }).catch(() => {

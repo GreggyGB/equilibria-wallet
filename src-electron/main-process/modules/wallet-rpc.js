@@ -306,7 +306,7 @@ export class WalletRPC {
                 break
 
             case "swap":
-                this.transfer(params.password, params.amount, params.address, params.payment_id, params.priority, params.currency, params.note || "", params.address_book, params.memo)
+                this.transfer(params.password, params.amount, params.address, params.payment_id, params.priority, params.currency, params.note || "", params.address_book, params.memo, params.network || 0)
                 break
 
             case "add_address_book":
@@ -859,14 +859,12 @@ export class WalletRPC {
                         message: "Fee " + (fee).toLocaleString() + " | Burn: " + (burn).toLocaleString(),
                         sending: false
                     })
-                    let t = new Date().getTime()
                     while (!this.confirmed_stake) {
                         await new Promise(r => setTimeout(r, 25));
-                        let l = new Date().getTime()
-                        if (l - t > 30000 || this.cancel_stake) {
+                        if (this.cancel_stake) {
                             this.sendGateway("show_notification", {
                                 type: "negative",
-                                message: "User took too long",
+                                message: "User canceled tx",
                                 timeout: 2000
                             })
                             this.confirmed_stake = false
@@ -875,6 +873,7 @@ export class WalletRPC {
                         }
                     }
                     this.confirmed_stake = false
+                    this.cancel_stake = false
 
                     this.sendRPC("relay_tx", {"hex": data.result.tx_metadata}).then((data_finalize) => {
                         if (data.hasOwnProperty("error")) {
@@ -1045,15 +1044,12 @@ export class WalletRPC {
                         sending: false
                     })
 
-
-                    let t = new Date().getTime()
                     while (!this.confirmed_stake) {
                         await new Promise(r => setTimeout(r, 25));
-                        let l = new Date().getTime()
-                        if (l - t > 30000 || this.cancel_stake) {
+                        if (this.cancel_stake) {
                             this.sendGateway("show_notification", {
                                 type: "negative",
-                                message: "User took too long",
+                                message: "User canceled tx",
                                 timeout: 2000
                             })
                             this.confirmed_stake = false
@@ -1062,6 +1058,7 @@ export class WalletRPC {
                         }
                     }
                     this.confirmed_stake = false
+                    this.cancel_stake = false
 
                     this.sendRPC("relay_tx", {"hex": data.result.tx_metadata_list[0]}).then((data_finalize) => {
                         if (data.hasOwnProperty("error")) {
