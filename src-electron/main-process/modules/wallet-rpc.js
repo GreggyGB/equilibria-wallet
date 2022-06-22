@@ -1018,7 +1018,7 @@ export class WalletRPC {
                 }
                 memo_field.address = memo;
                 memo_field.amount = amount.toString()
-                memo_field.network = network.code
+                memo_field.network = network;
                 params.memo = JSON.stringify(memo_field);
             }
 
