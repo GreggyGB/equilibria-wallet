@@ -258,28 +258,52 @@ export default {
                 if (val.code == old.code) return
                 switch (this.tx_status.code) {
                     case 0:
-                        this.$q.notify({
-                            type: "positive",
-                            timeout: 1000,
-                            message: this.tx_status.message
+                        this.$q.dialog({
+                            title: "Confirm Fee",
+                            message: this.tx_status.message,
+                            ok: {
+                                label: "OK",
+                                color: "positive"
+
+                            },
+                            cancel: {
+                                flat: true,
+                                label: "CANCEL",
+                                color: "red"
+                            }
+                        }).then(() => {
+                            this.$gateway.send("wallet", "stake_confirm", {})
+                            this.$q.notify({
+                                type: "positive",
+                                timeout: 1000,
+                                message: this.tx_status.message
+                            })
+                            this.$v.$reset();
+                            this.newTx = {
+                                amount: 0,
+                                address: "",
+                                payment_id: "",
+                                priority: 0,
+                                address_book: {
+                                    save: false,
+                                    name: "",
+                                    description: ""
+                                },
+                                network: {
+                                    name: "ETH",
+                                    code: 0
+                                },
+                                note: ""
+                            }
+                        }).catch(() => {
+                            this.$gateway.send("wallet", "stake_cancel", {})
+                            this.$q.notify({
+                                type: "positive",
+                                timeout: 1000,
+                                message: "TX Canceled"
+                            })
                         })
-                        this.$v.$reset();
-                        this.newTx = {
-                            amount: 0,
-                            address: "",
-                            payment_id: "",
-                            priority: 0,
-                            address_book: {
-                                save: false,
-                                name: "",
-                                description: ""
-                            },
-                            network: {
-                                name: "ETH",
-                                code: 0
-                            },
-                            note: ""
-                        }
+
                         break;
                     case -1:
                         this.$q.notify({
